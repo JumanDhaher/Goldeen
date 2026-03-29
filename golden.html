@@ -1,0 +1,2623 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Golden — تطبيق الذهب والزكاة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Tajawal:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C9A84C;
+  --gold-light: #E8C97A;
+  --gold-pale: #F5E6B8;
+  --gold-dark: #8B6914;
+  --black: #0A0A0A;
+  --surface: #111108;
+  --surface2: #1A190F;
+  --surface3: #232210;
+  --text: #F0E8D0;
+  --text-muted: #8A7F5E;
+  --border: rgba(201,168,76,0.2);
+  --radius: 4px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Tajawal', sans-serif;
+  background: var(--black);
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+body.en { direction: ltr; font-family: 'DM Sans', sans-serif; }
+
+/* ─── NOISE OVERLAY ─── */
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:1000;
+  opacity:.5;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed; top:0; left:0; right:0;
+  z-index: 100;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 20px 48px;
+  background: linear-gradient(to bottom, rgba(10,10,10,0.98), transparent);
+  backdrop-filter: blur(8px);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold), var(--gold-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+}
+
+.nav-links { display:flex; gap:8px; align-items:center; }
+
+.nav-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  transition: all .3s;
+  font-weight: 300;
+}
+.nav-links a:hover { color: var(--gold-light); }
+
+.lang-btn {
+  background: var(--border);
+  border: 1px solid var(--border);
+  color: var(--gold-light) !important;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem !important;
+  padding: 6px 14px !important;
+  border-radius: 2px;
+  transition: all .3s;
+  letter-spacing: 1px;
+}
+.lang-btn:hover { background: var(--gold) !important; color: var(--black) !important; }
+
+.btn-app {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: var(--black) !important;
+  font-weight: 700 !important;
+  padding: 10px 22px !important;
+  border-radius: 2px;
+  font-size: 0.85rem !important;
+  letter-spacing: .5px;
+}
+.btn-app:hover { opacity:.9; transform: translateY(-1px); }
+
+/* ─── HERO ─── */
+#hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 120px 24px 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute; inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 60%, rgba(201,168,76,0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,168,76,0.04) 0%, transparent 60%);
+}
+
+.hero-ornament {
+  width: 1px;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  margin: 0 auto 40px;
+  animation: fadeIn 1.5s ease forwards;
+}
+
+.hero-tag {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  opacity: 0;
+  animation: slideUp .8s .3s ease forwards;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(4rem, 12vw, 9rem);
+  font-weight: 900;
+  line-height: .9;
+  color: #F5E6B8;
+  text-shadow: 0 0 80px rgba(232,201,122,0.4), 0 2px 0 rgba(0,0,0,0.5);
+  opacity: 0;
+  animation: slideUp .8s .5s ease forwards;
+  margin-bottom: 24px;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  color: var(--text-muted);
+  font-weight: 300;
+  max-width: 520px;
+  line-height: 1.8;
+  opacity: 0;
+  animation: slideUp .8s .7s ease forwards;
+  margin-bottom: 48px;
+}
+
+.hero-cta {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+  opacity: 0;
+  animation: slideUp .8s .9s ease forwards;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--black);
+  border: none;
+  padding: 16px 40px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  transition: all .3s;
+  text-decoration: none;
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,168,76,0.3); }
+
+.btn-secondary {
+  background: transparent;
+  color: var(--gold-light);
+  border: 1px solid var(--border);
+  padding: 16px 40px;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  font-family: inherit;
+  border-radius: 2px;
+  letter-spacing: 1px;
+  transition: all .3s;
+  text-decoration: none;
+}
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold-light); }
+
+.hero-scroll {
+  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  color: var(--text-muted); font-size: 0.7rem; letter-spacing: 3px;
+  opacity: 0; animation: fadeIn 1s 1.5s ease forwards;
+}
+.scroll-line {
+  width: 1px; height: 40px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: scrollPulse 2s infinite;
+}
+
+/* ─── SECTION BASE ─── */
+section {
+  padding: 100px 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.section-label {
+  font-size: 0.7rem;
+  letter-spacing: 5px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 16px;
+}
+.section-label::after {
+  content:'';
+  flex:1;
+  height:1px;
+  background: var(--border);
+  max-width: 80px;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  color: #F5E6B8;
+}
+
+.section-title span { color: var(--gold-light); }
+
+/* ─── PROBLEM ─── */
+#problem { text-align: center; }
+
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1px;
+  margin-top: 60px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.problem-card {
+  background: var(--surface);
+  padding: 40px 32px;
+  transition: background .3s;
+  position: relative;
+}
+.problem-card:hover { background: var(--surface2); }
+
+.problem-icon {
+  font-size: 2rem;
+  margin-bottom: 16px;
+}
+.problem-card h3 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+.problem-card p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+
+/* ─── FEATURES ─── */
+#features { padding: 100px 24px; }
+
+.features-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.features-list { margin-top: 48px; display: flex; flex-direction: column; gap: 0; }
+
+.feature-item {
+  display: flex; align-items: flex-start; gap: 20px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .3s;
+}
+.feature-item:hover .feature-num { color: var(--gold-light); }
+.feature-item:last-child { border-bottom: none; }
+
+.feature-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--gold-dark);
+  opacity: .6;
+  line-height: 1;
+  min-width: 50px;
+  transition: color .3s;
+}
+
+.feature-content h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+.feature-content p { font-size: 0.85rem; color: var(--text-muted); line-height: 1.7; }
+
+.features-visual {
+  position: sticky;
+  top: 120px;
+}
+
+.phone-mockup {
+  width: 280px;
+  margin: 0 auto;
+  background: var(--surface2);
+  border-radius: 32px;
+  border: 1px solid var(--border);
+  padding: 12px;
+  box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(201,168,76,.1);
+}
+
+.phone-screen {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 24px 16px;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+.phone-header {
+  display: flex; align-items:center; justify-content:space-between;
+  margin-bottom: 20px;
+}
+.phone-header span {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--gold-light);
+  font-weight: 700;
+}
+.phone-header small { font-size: .7rem; color: var(--text-muted); }
+
+.phone-gold-price {
+  background: linear-gradient(135deg, rgba(201,168,76,.15), rgba(201,168,76,.05));
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  display: flex; justify-content:space-between; align-items:center;
+}
+.phone-gold-price .label { font-size: .7rem; color: var(--text-muted); }
+.phone-gold-price .val { font-size: 1rem; font-weight: 700; color: var(--gold-light); }
+
+.phone-item {
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  display: flex; align-items:center; gap: 12px;
+  border: 1px solid transparent;
+  transition: border .3s;
+}
+.phone-item:hover { border-color: var(--border); }
+
+.item-icon {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+  border-radius: 8px;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 1rem;
+}
+
+.item-info { flex:1; }
+.item-info strong { font-size: .85rem; display:block; margin-bottom: 2px; }
+.item-info span { font-size: .7rem; color: var(--text-muted); }
+.item-val { font-size: .8rem; color: var(--gold-light); font-weight: 600; }
+
+/* ─── ZAKAT ─── */
+#zakat {
+  padding: 100px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.zakat-inner {
+  max-width: 900px; margin: 0 auto; text-align: center;
+}
+
+.zakat-calc {
+  margin-top: 60px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.zakat-calc::before {
+  content:'';
+  position:absolute;
+  top:0; left:0; right:0;
+  height: 2px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+}
+
+.zakat-row {
+  display: flex; justify-content: space-between; align-items:center;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  gap: 24px;
+}
+.zakat-row:last-child { border-bottom: none; }
+
+.zakat-label { font-size: .85rem; color: var(--text-muted); text-align: right; }
+.zakat-value { font-size: 1.1rem; font-weight: 600; color: var(--gold-light); }
+
+.nisaab-bar {
+  margin: 32px 0;
+  background: var(--surface);
+  border-radius: 4px;
+  height: 8px;
+  overflow: hidden;
+}
+.nisaab-fill {
+  height: 100%;
+  background: linear-gradient(to right, var(--gold-dark), var(--gold-light));
+  border-radius: 4px;
+  width: 0%;
+  transition: width 1.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* ─── HOW ─── */
+#how { text-align: center; }
+
+.steps {
+  display: flex;
+  gap: 0;
+  margin-top: 60px;
+  position: relative;
+}
+
+.steps::before {
+  content:'';
+  position:absolute;
+  top: 32px; left: 50%; right: 0;
+  height: 1px;
+  background: var(--border);
+  width: 66%;
+  transform: translateX(-50%);
+}
+
+.step {
+  flex:1;
+  padding: 0 24px;
+  position: relative;
+}
+
+.step-num {
+  width: 64px; height: 64px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items:center; justify-content:center;
+  margin: 0 auto 24px;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--surface);
+  position: relative;
+  z-index:1;
+}
+
+.step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
+.step p { font-size: .85rem; color: var(--text-muted); line-height: 1.7; }
+
+/* ─── WAITLIST ─── */
+#waitlist {
+  text-align: center;
+  padding: 120px 24px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.waitlist-inner { max-width: 560px; margin: 0 auto; }
+
+.waitlist-form {
+  display: flex; gap: 12px; margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+.waitlist-input {
+  flex:1;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: .95rem;
+  padding: 14px 20px;
+  border-radius: 2px;
+  outline: none;
+  min-width: 200px;
+  transition: border .3s;
+}
+.waitlist-input:focus { border-color: var(--gold); }
+.waitlist-input::placeholder { color: var(--text-muted); }
+
+/* ─── APP SECTION ─── */
+#app {
+  min-height: 100vh;
+  background: var(--black);
+  padding: 80px 24px 40px;
+}
+
+.app-container {
+  max-width: 480px;
+  margin: 0 auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,.4);
+}
+
+.app-header {
+  background: var(--surface2);
+  padding: 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items:center; justify-content:space-between;
+}
+
+.app-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-tabs {
+  display: flex;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  padding: 14px;
+  text-align: center;
+  font-size: .85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+  border-bottom: 2px solid transparent;
+  transition: all .3s;
+}
+.tab.active {
+  color: var(--gold-light);
+  border-bottom-color: var(--gold);
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ─── APP GOLD LIST ─── */
+.gold-price-bar {
+  margin: 16px;
+  background: linear-gradient(135deg, rgba(201,168,76,.12), rgba(201,168,76,.04));
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  display: flex; justify-content:space-between; align-items:center;
+}
+.gp-label { font-size: .75rem; color: var(--text-muted); }
+.gp-value { font-size: 1rem; font-weight: 700; color: var(--gold-light); }
+.gp-sub { font-size: .7rem; color: var(--text-muted); }
+
+.items-list { padding: 0 16px; }
+
+.gold-item-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex; align-items:center; gap: 14px;
+  transition: all .3s;
+  cursor: pointer;
+}
+.gold-item-card:hover { border-color: var(--gold-dark); }
+
+.gi-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, rgba(201,168,76,.3), rgba(201,168,76,.1));
+  border-radius: 8px;
+  display: flex; align-items:center; justify-content:center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.gi-info { flex:1; min-width: 0; }
+.gi-info strong { font-size: .9rem; display:block; margin-bottom: 3px; white-space: nowrap; overflow:hidden; text-overflow: ellipsis; }
+.gi-info span { font-size: .75rem; color: var(--text-muted); }
+
+.gi-val { text-align: end; flex-shrink: 0; }
+.gi-val .val { font-size: .9rem; font-weight: 700; color: var(--gold-light); }
+.gi-val .wt { font-size: .7rem; color: var(--text-muted); margin-top: 2px; }
+
+.add-btn-fab {
+  margin: 16px;
+  width: calc(100% - 32px);
+  padding: 14px;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--black);
+  border: none;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: .95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .3s;
+  letter-spacing: .5px;
+}
+.add-btn-fab:hover { opacity:.9; transform: translateY(-1px); }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--text-muted);
+}
+.empty-state .icon { font-size: 3rem; margin-bottom: 16px; opacity:.5; }
+.empty-state p { font-size: .9rem; }
+
+/* ─── ADD FORM ─── */
+.add-form {
+  padding: 16px;
+  display: none;
+}
+.add-form.show { display: block; }
+
+.form-group { margin-bottom: 14px; }
+
+.form-label {
+  display: block;
+  font-size: .75rem;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: inherit;
+  font-size: .9rem;
+  padding: 11px 14px;
+  border-radius: 4px;
+  outline: none;
+  transition: border .3s;
+  appearance: none;
+}
+.form-input:focus, .form-select:focus { border-color: var(--gold); }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.form-actions {
+  display: flex; gap: 10px; margin-top: 20px;
+}
+
+.btn-save {
+  flex:1;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  color: var(--black);
+  border: none;
+  padding: 13px;
+  font-family: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-save:hover { opacity:.9; }
+
+.btn-cancel {
+  background: var(--surface2);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 13px 20px;
+  font-family: inherit;
+  font-size: .9rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* ─── ZAKAT TAB ─── */
+.zakat-tab { padding: 16px; }
+
+.zakat-summary {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 24px;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.zakat-summary .big-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--gold-light);
+  margin: 8px 0;
+}
+
+.zakat-summary .sub { font-size: .8rem; color: var(--text-muted); }
+
+.nisaab-status {
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: .85rem;
+  font-weight: 600;
+  text-align: center;
+}
+.nisaab-status.reached {
+  background: rgba(201,168,76,.15);
+  border: 1px solid rgba(201,168,76,.3);
+  color: var(--gold-light);
+}
+.nisaab-status.not-reached {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.zakat-detail-row {
+  display: flex; justify-content:space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: .85rem;
+}
+.zakat-detail-row:last-child { border-bottom: none; }
+.zakat-detail-row .key { color: var(--text-muted); }
+.zakat-detail-row .val { color: var(--gold-light); font-weight: 600; }
+
+.zakat-result {
+  background: linear-gradient(135deg, rgba(201,168,76,.15), rgba(201,168,76,.05));
+  border: 1px solid rgba(201,168,76,.3);
+  border-radius: 6px;
+  padding: 20px;
+  margin-top: 16px;
+  text-align: center;
+}
+.zakat-result .label { font-size: .8rem; color: var(--text-muted); margin-bottom: 6px; }
+.zakat-result .amount { font-size: 1.8rem; font-weight: 700; color: var(--gold-light); font-family: 'Playfair Display', serif; }
+
+/* ─── ITEM DETAIL ─── */
+.item-detail {
+  display: none;
+  padding: 16px;
+}
+.item-detail.show { display: block; }
+
+.detail-header {
+  display: flex; align-items:center; gap: 12px;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--gold-light);
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.back-btn:hover { background: var(--surface2); }
+
+.detail-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.detail-banner {
+  height: 120px;
+  background: linear-gradient(135deg, rgba(201,168,76,.2), rgba(201,168,76,.05));
+  display: flex; align-items:center; justify-content:center;
+  font-size: 4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-body { padding: 20px; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.detail-field { }
+.detail-field .df-label { font-size: .7rem; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 4px; text-transform: uppercase; }
+.detail-field .df-val { font-size: 1rem; font-weight: 600; color: var(--text); }
+
+.detail-actions {
+  display: flex; gap: 10px; margin-top: 20px;
+}
+
+.btn-delete {
+  flex:1;
+  background: rgba(255,80,80,.1);
+  color: #ff8080;
+  border: 1px solid rgba(255,80,80,.3);
+  padding: 12px;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: all .3s;
+}
+.btn-delete:hover { background: rgba(255,80,80,.2); }
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 60px 48px 40px;
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--gold-light), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
+}
+
+footer p { font-size: .8rem; color: var(--text-muted); margin-bottom: 8px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes slideUp {
+  from { opacity:0; transform: translateY(24px); }
+  to { opacity:1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity:0; } to { opacity:1; }
+}
+@keyframes scrollPulse {
+  0%,100% { opacity:.4; } 50% { opacity:1; }
+}
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed;
+  bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+  background: var(--surface2);
+  border: 1px solid var(--gold-dark);
+  color: var(--gold-light);
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-size: .85rem;
+  z-index: 200;
+  transition: transform .4s cubic-bezier(.4,0,.2,1);
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ─── DIVIDER ─── */
+.gold-divider {
+  width: 60px; height: 1px;
+  background: linear-gradient(to right, transparent, var(--gold), transparent);
+  margin: 24px auto;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links a:not(.lang-btn):not(.btn-app) { display: none; }
+  .features-inner { grid-template-columns: 1fr; gap: 40px; }
+  .features-visual { display: none; }
+  .steps { flex-direction: column; gap: 40px; }
+  .steps::before { display: none; }
+  .waitlist-form { flex-direction: column; }
+  section { padding: 60px 16px; }
+}
+
+/* ─── PAGE VIEW SYSTEM ─── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── SCROLL REVEAL ─── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Golden</div>
+  <div class="nav-links">
+    <a href="#problem" id="nav-prob">المشكلة</a>
+    <a href="#features" id="nav-feat">الميزات</a>
+    <a href="#waitlist" id="nav-wait">قائمة الانتظار</a>
+    <a href="#" class="lang-btn" onclick="toggleLang(event)" id="lang-btn">English</a>
+    <a href="#app" class="btn-app" id="nav-try">جرّب الآن</a>
+  </div>
+</nav>
+
+<!-- AUTH SCREEN -->
+<!-- AUTH MODAL -->
+<div id="auth-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;">
+  <!-- Backdrop -->
+  <div onclick="document.getElementById('auth-screen').style.display='none'"
+       style="position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);"></div>
+
+  <!-- Card wrapper — استخدام table-cell للتمركز الحقيقي -->
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;display:table;width:100%;height:100%;">
+    <div style="display:table-cell;vertical-align:middle;text-align:center;padding:16px;">
+      <div style="display:inline-block;width:100%;max-width:400px;text-align:right;background:var(--surface2);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.7);">
+
+      <!-- Top bar with golden line -->
+      <div style="height:3px;background:linear-gradient(to right,transparent,var(--gold),transparent);"></div>
+
+      <div style="padding:32px 28px 28px;">
+        <!-- Close + Logo -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;">
+          <div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#F5E6B8,#C9A84C);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;">Golden</div>
+            <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;" id="auth-subtitle">تطبيق الذهب والزكاة</div>
+          </div>
+          <button onclick="document.getElementById('auth-screen').style.display='none'"
+                  style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text-muted);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;"
+                  onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='rgba(255,255,255,.06)'">✕</button>
+        </div>
+
+        <!-- Tabs -->
+        <div style="display:flex;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:3px;margin-bottom:24px;gap:3px;">
+          <button onclick="showAuthTab('login')" id="auth-tab-login"
+                  style="flex:1;padding:11px;border:none;border-radius:6px;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .25s;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--black);">تسجيل الدخول</button>
+          <button onclick="showAuthTab('signup')" id="auth-tab-signup"
+                  style="flex:1;padding:11px;border:none;border-radius:6px;font-family:inherit;font-size:.9rem;cursor:pointer;transition:all .25s;background:transparent;color:var(--text-muted);">حساب جديد</button>
+        </div>
+
+        <!-- Fields -->
+        <div id="auth-name-group" style="display:none;margin-bottom:16px;">
+          <label style="display:block;font-size:.72rem;color:var(--gold);letter-spacing:1px;margin-bottom:6px;" id="auth-lbl-name">الاسم</label>
+          <input type="text" class="form-input" id="auth-name" placeholder="اسمك الكريم" style="width:100%;">
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:.72rem;color:var(--gold);letter-spacing:1px;margin-bottom:6px;" id="auth-lbl-email">البريد الإلكتروني</label>
+          <input type="email" class="form-input" id="auth-email" placeholder="example@email.com" dir="ltr" style="width:100%;">
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block;font-size:.72rem;color:var(--gold);letter-spacing:1px;margin-bottom:6px;" id="auth-lbl-pass">كلمة المرور</label>
+          <input type="password" class="form-input" id="auth-password" placeholder="••••••••" dir="ltr" style="width:100%;">
+          <div style="font-size:.7rem;color:var(--text-muted);margin-top:5px;" id="auth-pass-hint">6 أحرف على الأقل</div>
+        </div>
+
+        <button onclick="submitAuth()" id="auth-submit-btn"
+                style="width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--black);border:none;padding:15px;border-radius:8px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;transition:all .3s;letter-spacing:.3px;">
+          دخول
+        </button>
+
+        <div id="auth-error"   style="margin-top:12px;text-align:center;font-size:.8rem;color:#ff8080;display:none;padding:10px;background:rgba(255,80,80,.08);border-radius:6px;border:1px solid rgba(255,80,80,.2);"></div>
+        <div id="auth-success" style="margin-top:12px;text-align:center;font-size:.8rem;color:var(--gold-light);display:none;padding:10px;background:rgba(201,168,76,.08);border-radius:6px;border:1px solid rgba(201,168,76,.2);"></div>
+
+        <p id="auth-privacy" style="text-align:center;font-size:.72rem;color:var(--text-muted);margin-top:20px;">بياناتك خاصة ومحمية بالكامل ✦</p>
+      </div>
+    </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════ WEB APP ════════════════════ -->
+<section id="app" style="max-width:100%;padding:100px 24px 60px;background:var(--black);">
+  <div style="max-width:500px;margin:0 auto;">
+    <div class="app-container">
+      <!-- Header -->
+      <div class="app-header">
+        <div class="app-logo">Golden</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-size:.7rem;color:var(--text-muted);" id="app-item-count">0 قطع</span>
+          <button onclick="signOut()" id="signout-btn" title="تسجيل الخروج" style="background:none;border:1px solid var(--border);color:var(--text-muted);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;font-family:inherit;display:none;">خروج</button>
+        </div>
+      </div>
+
+      <!-- Guest Banner -->
+      <div id="guest-banner" style="display:none;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:16px;background:linear-gradient(180deg,rgba(201,168,76,.1),rgba(201,168,76,.03));border-bottom:1px solid rgba(201,168,76,.2);">
+        <span style="font-size:.76rem;color:var(--text-muted);line-height:1.7;max-width:280px;" id="guest-banner-txt">بياناتك محفوظة مؤقتاً على هذا الجهاز فقط — سجّل دخولك لحفظها بشكل دائم</span>
+        <button onclick="showAuthModal()" id="guest-login-btn"
+          style="background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--black);border:none;padding:9px 32px;border-radius:6px;font-family:inherit;font-size:.82rem;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+          تسجيل الدخول
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="app-tabs">
+        <button class="tab active" onclick="switchTab('list')" id="tab-list">قائمتي</button>
+        <button class="tab" onclick="switchTab('add')" id="tab-add">+ إضافة</button>
+        <button class="tab" onclick="switchTab('zakat')" id="tab-zakat">الزكاة</button>
+      </div>
+
+      <!-- LIST TAB -->
+      <div class="tab-content active" id="tc-list">
+        <!-- سعر الذهب -->
+        <div class="gold-price-bar">
+          <div>
+            <div class="gp-label" id="app-price-label">سعر الجرام عيار 24</div>
+            <div class="gp-sub" id="app-currency-label">ريال سعودي</div>
+          </div>
+          <div style="text-align:end;">
+            <div class="gp-value" id="app-gold-price">جارٍ التحميل...</div>
+            <div id="price-updated" style="font-size:.62rem;color:var(--text-muted);margin-top:2px;"></div>
+          </div>
+        </div>
+
+        <!-- شريط الأدوات -->
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);">
+          <div style="display:flex;gap:6px;">
+            <button onclick="setView('card')" id="view-card" title="بطاقات" style="background:var(--gold);border:none;color:var(--black);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;">⊞</button>
+            <button onclick="setView('list')" id="view-list" title="قائمة" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);width:30px;height:30px;border-radius:4px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center;">☰</button>
+          </div>
+          <button onclick="exportPDF()" style="background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.4);color:var(--gold-light);padding:6px 14px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.78rem;font-weight:600;display:flex;align-items:center;gap:6px;" id="btn-export">
+            📄 <span id="export-txt">تصدير PDF</span>
+          </button>
+        </div>
+
+        <!-- القائمة -->
+        <div id="items-list" style="padding:0 16px;">
+          <div class="empty-state" id="empty-state">
+            <div class="icon">✦</div>
+            <p id="empty-txt">لا توجد قطع مضافة بعد<br>ابدأ بإضافة أول قطعة ذهبية</p>
+          </div>
+        </div>
+
+        <button class="add-btn-fab" onclick="switchTab('add')" id="fab-add">+ أضف قطعة ذهبية</button>
+      </div>
+
+      <!-- ADD TAB -->
+      <div class="tab-content" id="tc-add">
+        <div class="add-form show">
+          <div class="form-group">
+            <label class="form-label" id="fl-name">اسم القطعة</label>
+            <input type="text" class="form-input" id="inp-name" placeholder="مثال: خاتم الزفاف">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" id="fl-type">النوع</label>
+              <select class="form-select" id="inp-type">
+                <option value="ring" data-ar="خاتم" data-en="Ring">خاتم</option>
+                <option value="necklace" data-ar="سلسال" data-en="Necklace">سلسال</option>
+                <option value="bar" data-ar="سبيكة" data-en="Bar">سبيكة</option>
+                <option value="bracelet" data-ar="أساور" data-en="Bracelet">أساور</option>
+                <option value="other" data-ar="أخرى" data-en="Other">أخرى</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="fl-karat">العيار</label>
+              <select class="form-select" id="inp-karat">
+                <option value="18">18</option>
+                <option value="21" selected>21</option>
+                <option value="22">22</option>
+                <option value="24">24</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" id="fl-weight">الوزن (جرام)</label>
+              <input type="number" class="form-input" id="inp-weight" placeholder="0.0" step="0.1" min="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" id="fl-price">سعر الشراء (ريال)</label>
+              <input type="number" class="form-input" id="inp-price" placeholder="0" min="0">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="fl-date">تاريخ الشراء</label>
+            <input type="date" class="form-input" id="inp-date">
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="fl-notes">ملاحظات (اختياري)</label>
+            <input type="text" class="form-input" id="inp-notes" placeholder="هدية، مناسبة...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" id="fl-image">صورة القطعة (اختياري)</label>
+            <label for="inp-image" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:var(--surface2);border:1px dashed rgba(201,168,76,.4);border-radius:6px;padding:20px;cursor:pointer;transition:all .3s;" id="img-upload-label"
+              onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='rgba(201,168,76,.4)'">
+              <div id="img-preview-wrap" style="display:none;width:100%;text-align:center;">
+                <img id="img-preview" style="max-height:120px;border-radius:6px;object-fit:cover;max-width:100%;">
+              </div>
+              <div id="img-placeholder" style="text-align:center;">
+                <div style="font-size:1.5rem;margin-bottom:4px;">📷</div>
+                <div style="font-size:.78rem;color:var(--text-muted);">اضغط لرفع صورة</div>
+              </div>
+            </label>
+            <input type="file" id="inp-image" accept="image/*" style="display:none;" onchange="previewImage(this)">
+          </div>
+          <div class="form-actions">
+            <button class="btn-save" onclick="saveItem()" id="btn-save-item">حفظ القطعة</button>
+            <button class="btn-cancel" onclick="switchTab('list')" id="btn-cancel-item">إلغاء</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ZAKAT TAB -->
+      <div class="tab-content" id="tc-zakat">
+        <div id="zakat-tab-content"></div>
+      </div>
+
+      <!-- DETAIL VIEW (overlay inside app) -->
+      <div class="item-detail" id="item-detail">
+        <div class="detail-header">
+          <button class="back-btn" onclick="closeDetail()">← <span id="back-txt">رجوع</span></button>
+          <strong id="detail-title" style="font-size:.95rem;color:var(--text);">تفاصيل القطعة</strong>
+        </div>
+        <div class="detail-card">
+          <div class="detail-banner" id="detail-icon">💍</div>
+          <div class="detail-body">
+            <div class="detail-grid" id="detail-grid"></div>
+            <div id="detail-current-val" style="margin-bottom:0;"></div>
+          </div>
+        </div>
+        <div class="detail-actions" style="margin-top:12px;">
+          <button class="btn-delete" onclick="deleteItem()" id="btn-delete">🗑 حذف القطعة</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+
+<!-- PROBLEM -->
+<section id="problem" style="max-width:100%; background:var(--surface); border-top:1px solid var(--border); padding:80px 48px;">
+  <div style="max-width:1100px;margin:0 auto;text-align:center;">
+    <p class="section-label" style="justify-content:center;" id="prob-label">المشكلة</p>
+    <h2 class="section-title" id="prob-title">لماذا <span>Golden</span>؟</h2>
+    <p style="color:var(--text-muted);max-width:500px;margin:0 auto 60px;font-size:.95rem;line-height:1.8;" id="prob-sub">كثير منا يملك ذهبًا لكن لا يعرف تفاصيله الحقيقية عند الحاجة</p>
+    <div class="problem-grid">
+      <div class="problem-card reveal">
+        <div class="problem-icon">⚖️</div>
+        <h3 id="pb1">نسيان الوزن والعيار مع مرور الوقت</h3>
+        <p id="pb1s">تفاصيل مهمة تُنسى بعد سنوات من الشراء</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">🧾</div>
+        <h3 id="pb2">ضياع فاتورة الشراء</h3>
+        <p id="pb2s">لا دليل على سعر الشراء الأصلي عند البيع</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">📝</div>
+        <h3 id="pb3">تخزين المعلومات بشكل عشوائي</h3>
+        <p id="pb3s">ملاحظات متفرقة لا يمكن الوثوق بها</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">💰</div>
+        <h3 id="pb4">صعوبة معرفة القيمة الحقيقية</h3>
+        <p id="pb4s">لا تعرف كم يساوي ذهبك بالسعر الحالي</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">🕌</div>
+        <h3 id="pb5">هل بلغ النصاب الشرعي؟</h3>
+        <p id="pb5s">عدم وضوح ما إذا وجبت الزكاة أم لا</p>
+      </div>
+      <div class="problem-card reveal">
+        <div class="problem-icon">📊</div>
+        <h3 id="pb6">كم مقدار الزكاة الواجبة؟</h3>
+        <p id="pb6s">حساب يدوي معقد وعرضة للخطأ</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" style="max-width:100%;padding:100px 48px;">
+  <div class="features-inner">
+    <div>
+      <p class="section-label" id="feat-label">الميزات</p>
+      <h2 class="section-title" id="feat-title">كل ما تحتاجه<br>في <span>مكان واحد</span></h2>
+      <div class="features-list">
+        <div class="feature-item reveal">
+          <div class="feature-num">01</div>
+          <div class="feature-content">
+            <h3 id="f1">تسجيل كامل لكل قطعة</h3>
+            <p id="f1s">اسم القطعة، النوع، العيار، الوزن، سعر الشراء، التاريخ، والصورة</p>
+          </div>
+        </div>
+        <div class="feature-item reveal">
+          <div class="feature-num">02</div>
+          <div class="feature-content">
+            <h3 id="f2">القيمة الحالية تلقائيًا</h3>
+            <p id="f2s">احسب قيمة ذهبك الآن استنادًا لسعر الذهب الحالي</p>
+          </div>
+        </div>
+        <div class="feature-item reveal">
+          <div class="feature-num">03</div>
+          <div class="feature-content">
+            <h3 id="f3">حساب الزكاة بدقة</h3>
+            <p id="f3s">مقارنة بالنصاب (85 جرام عيار 24) وحساب 2.5% تلقائيًا</p>
+          </div>
+        </div>
+        <div class="feature-item reveal">
+          <div class="feature-num">04</div>
+          <div class="feature-content">
+            <h3 id="f4">خصوصية تامة — بدون إنترنت</h3>
+            <p id="f4s">بياناتك تُحفظ على جهازك فقط، لا سحابة ولا مشاركة</p>
+          </div>
+        </div>
+        <div class="feature-item reveal">
+          <div class="feature-num">05</div>
+          <div class="feature-content">
+            <h3 id="f5">عربي وإنجليزي</h3>
+            <p id="f5s">واجهة كاملة بكلتا اللغتين مع دعم RTL</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="features-visual">
+      <div class="phone-mockup">
+        <div class="phone-screen">
+          <div class="phone-header">
+            <span>Golden</span>
+            <small id="ph-items">4 قطع</small>
+          </div>
+          <div class="phone-gold-price">
+            <div>
+              <div class="label" id="ph-price-label">سعر الجرام (24)</div>
+              <div class="gp-sub" id="ph-currency">ريال سعودي</div>
+            </div>
+            <div class="val" id="ph-price">...</div>
+          </div>
+          <div class="phone-item">
+            <div class="item-icon">💍</div>
+            <div class="item-info">
+              <strong id="pi1n">خاتم الزفاف</strong>
+              <span id="pi1d">عيار 21 · 8.5 جرام</span>
+            </div>
+            <div class="item-val">
+              <div class="val" id="pi1v">يحسب...</div>
+            </div>
+          </div>
+          <div class="phone-item">
+            <div class="item-icon">📿</div>
+            <div class="item-info">
+              <strong id="pi2n">سلسال ذهبي</strong>
+              <span id="pi2d">عيار 18 · 12 جرام</span>
+            </div>
+            <div class="item-val">
+              <div class="val" id="pi2v">يحسب...</div>
+            </div>
+          </div>
+          <div class="phone-item">
+            <div class="item-icon">🏅</div>
+            <div class="item-info">
+              <strong id="pi3n">سبيكة صغيرة</strong>
+              <span id="pi3d">عيار 24 · 31.1 جرام</span>
+            </div>
+            <div class="item-val">
+              <div class="val" id="pi3v">يحسب...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ZAKAT SECTION -->
+<section id="zakat" style="max-width:100%;padding:100px 48px;">
+  <div class="zakat-inner">
+    <p class="section-label" style="justify-content:center;" id="zak-label">الزكاة</p>
+    <h2 class="section-title" id="zak-title">حساب <span>الزكاة</span> بلحظة</h2>
+    <p style="color:var(--text-muted);font-size:.95rem;line-height:1.8;max-width:480px;margin:0 auto;" id="zak-sub">
+      النصاب الشرعي للذهب 85 جرامًا من عيار 24. إذا بلغ ذهبك هذا الحد ومرت عليه سنة كاملة، تجب فيه الزكاة بنسبة 2.5%
+    </p>
+    <div class="zakat-calc reveal">
+      <div class="zakat-row">
+        <span class="zakat-label" id="zl1">إجمالي وزن الذهب</span>
+        <span class="zakat-value" id="zl-total-weight">51.6 جرام</span>
+      </div>
+      <div class="zakat-row">
+        <span class="zakat-label" id="zl2">النصاب الشرعي</span>
+        <span class="zakat-value" id="zl-nisaab-val">85 جرام (عيار 24)</span>
+      </div>
+      <div style="margin:20px 0;">
+        <p style="font-size:.75rem;color:var(--text-muted);margin-bottom:8px;" id="zl3">نسبة الاكتمال</p>
+        <div class="nisaab-bar">
+          <div class="nisaab-fill" id="nisaab-fill-demo"></div>
+        </div>
+        <p style="font-size:.75rem;color:var(--gold);margin-top:6px;" id="zl-pct">61% من النصاب</p>
+      </div>
+      <div class="zakat-row">
+        <span class="zakat-label" id="zl4">القيمة الإجمالية التقريبية</span>
+        <span class="zakat-value" id="zl4v">يحسب...</span>
+      </div>
+      <div class="zakat-row">
+        <span class="zakat-label" id="zl5">نسبة الزكاة</span>
+        <span class="zakat-value">2.5%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" style="max-width:100%;padding:100px 48px;background:var(--surface2);border-top:1px solid var(--border);">
+  <div style="max-width:900px;margin:0 auto;text-align:center;">
+  <p class="section-label" style="justify-content:center;" id="how-label">كيف يعمل</p>
+  <h2 class="section-title" id="how-title">ثلاث خطوات <span>فقط</span></h2>
+  <div class="steps" style="margin-top:60px;">
+    <div class="step reveal">
+      <div class="step-num">١</div>
+      <h3 id="s1">أضف ذهبك</h3>
+      <p id="s1d">سجّل كل قطعة بتفاصيلها الكاملة من الاسم والعيار والوزن والسعر</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">٢</div>
+      <h3 id="s2">تابع القيمة</h3>
+      <p id="s2d">اعرف قيمة ذهبك الحالية تلقائيًا بناءً على سعر السوق</p>
+    </div>
+    <div class="step reveal">
+      <div class="step-num">٣</div>
+      <h3 id="s3">احسب الزكاة</h3>
+      <p id="s3d">اعرف على الفور هل وجبت الزكاة وكم مقدارها بالضبط</p>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section id="waitlist" style="max-width:100%;padding:120px 48px;background:var(--surface);border-top:1px solid var(--border);">
+  <div class="waitlist-inner" style="margin:0 auto;">
+    <p class="section-label" style="justify-content:center;" id="wl-label">قريبًا</p>
+    <h2 class="section-title" id="wl-title">انضم لقائمة<br><span>الانتظار</span></h2>
+    <div class="gold-divider"></div>
+    <p style="color:var(--text-muted);font-size:.9rem;line-height:1.8;margin-bottom:40px;" id="wl-sub">
+      نُطلق التطبيق قريبًا على iOS و Android. سجّل بريدك لتكون من أوائل المستخدمين
+    </p>
+    <div class="waitlist-form">
+      <input type="email" class="waitlist-input" id="wl-input" placeholder="بريدك الإلكتروني" dir="auto">
+      <button class="btn-primary" onclick="submitWaitlist()" id="wl-btn">أبلغني عند الإطلاق</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--text-muted);margin-top:16px;" id="wl-note">لن نشارك بيانتاك مع أي جهة. ✦</p>
+  </div>
+</section>
+
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Golden</div>
+  <p id="foot1">تطبيق تتبع الذهب وحساب الزكاة</p>
+  <p id="foot2" style="margin-top:24px;font-size:.7rem;">© 2025 Golden. جميع الحقوق محفوظة.</p>
+</footer>
+
+<script>
+// ══════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://ytydysnraystxdzrzrip.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_0wXZb9o0VzT0PwVHzzI9yQ_XpWEtp1M';
+
+// Load Supabase SDK
+const _supa = document.createElement('script');
+_supa.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+_supa.onload = () => {
+  window._sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  initApp();
+};
+document.head.appendChild(_supa);
+
+// ══════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════
+let items = [];
+let goldPrice24 = null;
+let currentLang = 'ar';
+let currentUser = null;
+let authMode = 'login';
+let currentView = 'card';
+let selectedItemId = null;
+let zakatState = { step:1, includeItems:{}, manualEntries:[], source:null };
+
+// ══════════════════════════════════════════
+// TRANSLATIONS (same as before, abbreviated)
+// ══════════════════════════════════════════
+const t = {
+  ar: {
+    nav_prob:'المشكلة', nav_feat:'الميزات', nav_wait:'قائمة الانتظار', nav_try:'التطبيق',
+    tab_list:'قائمتي', tab_add:'+ إضافة', tab_zakat:'الزكاة',
+    app_price_label:'سعر الجرام عيار 24', app_currency_label:'ريال سعودي',
+    empty_txt:'لا توجد قطع مضافة بعد<br>ابدأ بإضافة أول قطعة ذهبية',
+    fl_name:'اسم القطعة', fl_type:'النوع', fl_karat:'العيار', fl_weight:'الوزن (جرام)',
+    fl_price:'سعر الشراء (ريال)', fl_date:'تاريخ الشراء', fl_notes:'ملاحظات (اختياري)',
+    fl_image:'صورة القطعة (اختياري)',
+    btn_save_item:'حفظ القطعة', btn_cancel_item:'إلغاء',
+    back_txt:'رجوع', detail_title:'تفاصيل القطعة', btn_delete:'🗑 حذف القطعة',
+    foot1:'تطبيق تتبع الذهب وحساب الزكاة', foot2:'© 2025 Golden. جميع الحقوق محفوظة.',
+    fab_add:'+ أضف قطعة ذهبية', export_txt:'تصدير PDF',
+    app_item_count_f: n => n + ' قطع',
+    karat_label:'عيار', gram:'جم', sar:'ريال',
+    toast_saved:'تم حفظ القطعة ✓', toast_deleted:'تم الحذف',
+    toast_waitlist:'شكرًا! سنبلغك عند الإطلاق ✦',
+    toast_email:'يرجى إدخال بريد إلكتروني صحيح',
+    type_ring:'خاتم', type_necklace:'سلسال', type_bar:'سبيكة',
+    type_bracelet:'أساور', type_other:'أخرى',
+    df_name:'الاسم', df_type:'النوع', df_karat:'العيار', df_weight:'الوزن',
+    df_price:'سعر الشراء', df_date:'تاريخ الشراء', df_notes:'ملاحظات',
+    cur_val:'القيمة الحالية التقريبية', loading:'جارٍ التحميل...',
+    app_item_count_f: n => n===0?'لا توجد قطع':n+' قطع',
+  },
+  en: {
+    nav_prob:'Problem', nav_feat:'Features', nav_wait:'Waitlist', nav_try:'App',
+    tab_list:'My Gold', tab_add:'+ Add', tab_zakat:'Zakat',
+    app_price_label:'Price/gram (24K)', app_currency_label:'SAR',
+    empty_txt:'No items added yet<br>Start by adding your first gold item.',
+    fl_name:'Item Name', fl_type:'Type', fl_karat:'Karat', fl_weight:'Weight (grams)',
+    fl_price:'Purchase Price (SAR)', fl_date:'Purchase Date', fl_notes:'Notes (optional)',
+    fl_image:'Item Photo (optional)',
+    btn_save_item:'Save Item', btn_cancel_item:'Cancel',
+    back_txt:'Back', detail_title:'Item Details', btn_delete:'🗑 Delete Item',
+    foot1:'Gold Tracking & Zakat App', foot2:'© 2025 Golden. All rights reserved.',
+    fab_add:'+ Add Gold Item', export_txt:'Export PDF',
+    karat_label:'K', gram:'g', sar:'SAR',
+    toast_saved:'Item saved ✓', toast_deleted:'Item deleted',
+    toast_waitlist:'Thank you! We will notify you at launch ✦',
+    toast_email:'Please enter a valid email address',
+    type_ring:'Ring', type_necklace:'Necklace', type_bar:'Bar',
+    type_bracelet:'Bracelet', type_other:'Other',
+    df_name:'Name', df_type:'Type', df_karat:'Karat', df_weight:'Weight',
+    df_price:'Purchase Price', df_date:'Purchase Date', df_notes:'Notes',
+    cur_val:'Approximate current value', loading:'Loading...',
+    app_item_count_f: n => n===0?'No items':n+' items',
+  }
+};
+function T(key) { return t[currentLang][key] || key; }
+
+// ══════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════
+async function initApp() {
+  // Check session
+  const { data: { session } } = await window._sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    onSignedIn();
+  } else {
+    onGuest();
+  }
+
+  // Listen to auth changes
+  window._sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN') {
+      currentUser = session.user;
+      onSignedIn();
+    } else if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      onGuest();
+    }
+  });
+
+  fetchGoldPrice();
+  setInterval(fetchGoldPrice, 60000);
+  initScrollReveal();
+  animateNisaabDemo();
+  document.getElementById('inp-date').valueAsDate = new Date();
+}
+
+function onGuest() {
+  // App works normally — just load from localStorage
+  items = JSON.parse(localStorage.getItem('golden_guest_items') || '[]');
+  updateGuestBanner(true);
+  document.getElementById('signout-btn').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'none';
+  renderList();
+  renderZakat();
+}
+
+function onSignedIn() {
+  updateGuestBanner(false);
+  document.getElementById('signout-btn').style.display = 'block';
+  document.getElementById('auth-screen').style.display = 'none';
+  loadItems(); // load from Supabase
+}
+
+function updateGuestBanner(show) {
+  const banner = document.getElementById('guest-banner');
+  if (banner) banner.style.display = show ? 'flex' : 'none';
+}
+
+// ══════════════════════════════════════════
+// AUTH UI
+// ══════════════════════════════════════════
+function showAuthModal() {
+  document.getElementById('auth-screen').style.display = 'flex';
+}
+
+function showAuthTab(mode) {
+  authMode = mode;
+  const isAr = currentLang === 'ar';
+  const loginBtn  = document.getElementById('auth-tab-login');
+  const signupBtn = document.getElementById('auth-tab-signup');
+  const nameGroup = document.getElementById('auth-name-group');
+  const submitBtn = document.getElementById('auth-submit-btn');
+  const hint      = document.getElementById('auth-pass-hint');
+
+  const active   = 'linear-gradient(135deg,var(--gold-light),var(--gold))';
+  const inactive = 'transparent';
+
+  if (mode === 'login') {
+    loginBtn.style.cssText  += ';background:' + active   + ';color:var(--black);font-weight:600;';
+    signupBtn.style.cssText += ';background:' + inactive + ';color:var(--text-muted);font-weight:400;';
+    if (nameGroup) nameGroup.style.display = 'none';
+    submitBtn.textContent = isAr ? 'دخول' : 'Sign In';
+    if (hint) hint.style.display = 'none';
+  } else {
+    signupBtn.style.cssText += ';background:' + active   + ';color:var(--black);font-weight:600;';
+    loginBtn.style.cssText  += ';background:' + inactive + ';color:var(--text-muted);font-weight:400;';
+    if (nameGroup) nameGroup.style.display = 'block';
+    submitBtn.textContent = isAr ? 'إنشاء حساب' : 'Create Account';
+    if (hint) hint.style.display = 'block';
+  }
+  document.getElementById('auth-error').style.display   = 'none';
+  document.getElementById('auth-success').style.display = 'none';
+}
+
+async function submitAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = document.getElementById('auth-submit-btn');
+  const errEl = document.getElementById('auth-error');
+  const sucEl = document.getElementById('auth-success');
+
+  if (!email || !password) {
+    showAuthError('يرجى إدخال البريد وكلمة المرور');
+    return;
+  }
+  if (password.length < 6) {
+    showAuthError('كلمة المرور 6 أحرف على الأقل');
+    return;
+  }
+
+  btn.textContent = '...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  try {
+    if (authMode === 'login') {
+      const { error } = await window._sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    } else {
+      const { error } = await window._sb.auth.signUp({
+        email, password,
+        options: { emailRedirectTo: 'https://jumandhaher.github.io/golden/' }
+      });
+      if (error) throw error;
+      sucEl.textContent = 'تم إنشاء الحساب! تحقق من بريدك لتأكيد الحساب ✦';
+      sucEl.style.display = 'block';
+      btn.textContent = 'تم الإرسال';
+      return;
+    }
+  } catch (err) {
+    const msg = err.message?.includes('Invalid login') ? 'البريد أو كلمة المرور غير صحيحة' :
+                err.message?.includes('already registered') ? 'هذا البريد مسجل مسبقاً' :
+                err.message || 'حدث خطأ، حاول مرة أخرى';
+    showAuthError(msg);
+    btn.textContent = authMode === 'login' ? 'دخول' : 'إنشاء حساب';
+    btn.disabled = false;
+  }
+}
+
+function showAuthError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  document.getElementById('auth-submit-btn').textContent = authMode === 'login' ? 'دخول' : 'إنشاء حساب';
+  document.getElementById('auth-submit-btn').disabled = false;
+}
+
+async function signOut() {
+  await window._sb.auth.signOut();
+  // onGuest() will be called via onAuthStateChange
+}
+
+// ══════════════════════════════════════════
+// SUPABASE DATA
+// ══════════════════════════════════════════
+async function loadItems() {
+  if (!currentUser) return;
+  const { data, error } = await window._sb
+    .from('gold_items')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (!error && data) {
+    items = data.map(r => ({
+      id: r.id,
+      name: r.name,
+      type: r.type,
+      karat: r.karat,
+      weight: r.weight,
+      price: r.price,
+      date: r.purchase_date,
+      notes: r.notes,
+      image: r.image_url,
+    }));
+    renderList();
+    renderZakat();
+    document.getElementById('app-item-count').textContent = T('app_item_count_f')(items.length);
+  }
+}
+
+async function saveItemToSupabase(item) {
+  let image_url = null;
+
+  // Upload image if exists
+  if (item.imageFile) {
+    const ext = item.imageFile.name.split('.').pop();
+    const path = `${currentUser.id}/${item.id}.${ext}`;
+    const { data: uploadData, error: uploadErr } = await window._sb.storage
+      .from('gold-images')
+      .upload(path, item.imageFile, { upsert: true });
+    if (!uploadErr) {
+      const { data: urlData } = window._sb.storage.from('gold-images').getPublicUrl(path);
+      image_url = urlData.publicUrl;
+    }
+  } else if (item.image && item.image.startsWith('data:')) {
+    // fallback: store as base64 in DB (not ideal but works)
+    image_url = item.image;
+  }
+
+  const { data, error } = await window._sb.from('gold_items').insert({
+    user_id: currentUser.id,
+    name: item.name,
+    type: item.type,
+    karat: item.karat,
+    weight: item.weight,
+    price: item.price,
+    purchase_date: item.date || null,
+    notes: item.notes,
+    image_url,
+  }).select().single();
+
+  return { data, error };
+}
+
+async function deleteItemFromSupabase(id) {
+  const { error } = await window._sb.from('gold_items').delete().eq('id', id);
+  return !error;
+}
+
+// ══════════════════════════════════════════
+// GOLD PRICE
+// ══════════════════════════════════════════
+const FALLBACK_PRICES = { 24:610.20, 22:576.00, 21:550.50, 18:470.90 };
+
+function karatPrice(karat) {
+  if (!goldPrice24) return FALLBACK_PRICES[karat] || 0;
+  return karatPriceToday(karat);
+}
+
+function karatPriceToday(karat) {
+  if (goldPrice24 && goldPrice24 !== FALLBACK_PRICES[24]) return goldPrice24 * (karat/24);
+  return FALLBACK_PRICES[karat] || goldPrice24 * (karat/24);
+}
+
+async function fetchGoldPrice() {
+  try {
+    const res = await fetch('https://data-asg.goldprice.org/dbXRates/SAR', { headers: {'x-access-token':'goldprice-org'} });
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    goldPrice24 = data.items[0].xauPrice / 31.1035;
+  } catch {
+    goldPrice24 = FALLBACK_PRICES[24];
+  }
+  updatePriceDisplay();
+}
+
+function updatePriceDisplay() {
+  const sar = currentLang==='ar'?'ريال':'SAR';
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('app-gold-price').textContent =
+    goldPrice24 ? karatPriceToday(24).toFixed(1)+' '+sar : '...';
+  const upd = document.getElementById('price-updated');
+  if (upd) upd.textContent = (currentLang==='ar'?'آخر تحديث: ':'Updated: ')+timeStr;
+
+  document.querySelectorAll('.gi-val-dynamic').forEach(el => {
+    el.textContent = calcCurrentValue(parseFloat(el.dataset.weight), parseInt(el.dataset.karat));
+  });
+  [18,21,22,24].forEach(k => {
+    const el = document.getElementById('kp-'+k);
+    if (el && goldPrice24) el.textContent = karatPrice(k).toFixed(1)+' '+sar;
+  });
+  // phone mockup
+  ['pi1v','pi2v','pi3v'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = calcCurrentValue([8.5,12,31.1][i],[21,18,24][i]);
+  });
+  const zl4 = document.getElementById('zl4v');
+  if (zl4) zl4.textContent = calcCurrentValue(51.6,24);
+  renderZakat();
+}
+
+function calcCurrentValue(weight, karat) {
+  if (!goldPrice24 && !FALLBACK_PRICES[karat]) return currentLang==='ar'?'جارٍ...':'Loading...';
+  const val = weight * karatPrice(karat);
+  return val.toLocaleString('ar-SA',{maximumFractionDigits:0})+' '+(currentLang==='ar'?'ريال':'SAR');
+}
+
+function calcCurrentValueNum(weight, karat) {
+  return weight * karatPrice(karat);
+}
+
+// ══════════════════════════════════════════
+// ITEM ICONS & VIEW
+// ══════════════════════════════════════════
+const typeIcons = { ring:'💍', necklace:'📿', bar:'🏅', bracelet:'✨', other:'⬡' };
+
+function setView(v) {
+  currentView = v;
+  ['card','list'].forEach(x => {
+    const btn = document.getElementById('view-'+x);
+    if (!btn) return;
+    btn.style.background = v===x?'var(--gold)':'var(--surface2)';
+    btn.style.color = v===x?'var(--black)':'var(--text-muted)';
+    btn.style.border = v===x?'none':'1px solid var(--border)';
+  });
+  renderList();
+}
+
+// ══════════════════════════════════════════
+// RENDER LIST
+// ══════════════════════════════════════════
+function renderList() {
+  const list = document.getElementById('items-list');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('app-item-count');
+  if (count) count.textContent = T('app_item_count_f')(items.length);
+
+  list.querySelectorAll('.gold-item-card,.gold-list-row').forEach(e=>e.remove());
+
+  if (items.length === 0) {
+    empty.style.display = 'block';
+    empty.querySelector('p').innerHTML = T('empty_txt');
+    return;
+  }
+  empty.style.display = 'none';
+  const isAr = currentLang==='ar';
+
+  if (currentView === 'card') {
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'gold-item-card';
+      card.onclick = () => showDetail(item.id);
+      const typeLabel = T('type_'+item.type);
+      const imgHTML = item.image
+        ? `<div style="width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;"><img src="${item.image}" style="width:100%;height:100%;object-fit:cover;"></div>`
+        : `<div class="gi-icon">${typeIcons[item.type]||'⬡'}</div>`;
+      card.innerHTML = `
+        ${imgHTML}
+        <div class="gi-info">
+          <strong>${item.name}</strong>
+          <span>${typeLabel} · ${isAr?'عيار':'K'} ${item.karat} · ${item.weight}${isAr?'جم':'g'}</span>
+        </div>
+        <div class="gi-val">
+          <div class="val gi-val-dynamic" data-weight="${item.weight}" data-karat="${item.karat}">${calcCurrentValue(item.weight,item.karat)}</div>
+          <div class="wt">${item.weight}${isAr?'جم':'g'}</div>
+        </div>`;
+      list.insertBefore(card, empty);
+    });
+  } else {
+    const table = document.createElement('div');
+    table.className = 'gold-list-row';
+    table.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:8px;';
+    table.innerHTML = `<div style="display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;padding:8px 12px;border-bottom:1px solid var(--border);font-size:.68rem;color:var(--gold);letter-spacing:.5px;">
+      <span>${isAr?'الاسم':'Name'}</span>
+      <span style="text-align:center;">${isAr?'العيار':'Karat'}</span>
+      <span style="text-align:center;">${isAr?'الوزن':'Weight'}</span>
+      <span style="text-align:end;">${isAr?'القيمة':'Value'}</span>
+    </div>`;
+    items.forEach((item,idx) => {
+      const row = document.createElement('div');
+      row.style.cssText = `display:grid;grid-template-columns:2fr 1fr 1fr 1.2fr;padding:10px 12px;border-bottom:${idx<items.length-1?'1px solid rgba(255,255,255,.04)':'none'};cursor:pointer;transition:background .2s;align-items:center;font-size:.82rem;`;
+      row.onmouseover = () => row.style.background='rgba(201,168,76,.06)';
+      row.onmouseout  = () => row.style.background='transparent';
+      row.onclick = () => showDetail(item.id);
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;">
+          ${item.image?`<img src="${item.image}" style="width:28px;height:28px;border-radius:4px;object-fit:cover;">`:`<span style="font-size:1rem;">${typeIcons[item.type]||'⬡'}</span>`}
+          <span style="font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</span>
+        </div>
+        <span style="text-align:center;color:var(--text-muted);">${item.karat}</span>
+        <span style="text-align:center;color:var(--text-muted);">${item.weight}${isAr?'جم':'g'}</span>
+        <span style="text-align:end;color:var(--gold-light);font-weight:600;font-size:.78rem;" class="gi-val-dynamic" data-weight="${item.weight}" data-karat="${item.karat}">${calcCurrentValue(item.weight,item.karat)}</span>`;
+      table.appendChild(row);
+    });
+    list.insertBefore(table, empty);
+  }
+}
+
+// ══════════════════════════════════════════
+// IMAGE PREVIEW
+// ══════════════════════════════════════════
+function previewImage(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('img-preview').src = e.target.result;
+    document.getElementById('img-preview-wrap').style.display = 'block';
+    document.getElementById('img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ══════════════════════════════════════════
+// SAVE ITEM
+// ══════════════════════════════════════════
+async function saveItem() {
+
+  const name   = document.getElementById('inp-name').value.trim();
+  const type   = document.getElementById('inp-type').value;
+  const karat  = parseInt(document.getElementById('inp-karat').value);
+  const weight = parseFloat(document.getElementById('inp-weight').value);
+  const price  = parseFloat(document.getElementById('inp-price').value) || 0;
+  const date   = document.getElementById('inp-date').value;
+  const notes  = document.getElementById('inp-notes').value.trim();
+  const imgInput = document.getElementById('inp-image');
+  const imageFile = imgInput.files[0] || null;
+  const imgEl = document.getElementById('img-preview');
+  const imageB64 = imgEl?.src?.startsWith('data:') ? imgEl.src : null;
+
+  if (!name || !weight || weight<=0) {
+    showToast(currentLang==='ar'?'يرجى إدخال الاسم والوزن':'Please enter name and weight');
+    return;
+  }
+
+  const btn = document.getElementById('btn-save-item');
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  const newItem = { id: Date.now(), name, type, karat, weight, price,
+                    date, notes, image: imageB64, imageFile };
+
+  if (currentUser) {
+    // مستخدم مسجّل — احفظ في Supabase
+    const { data, error } = await saveItemToSupabase(newItem);
+    if (!error && data) {
+      items.unshift({
+        id: data.id, name: data.name, type: data.type, karat: data.karat,
+        weight: data.weight, price: data.price, date: data.purchase_date,
+        notes: data.notes, image: data.image_url,
+      });
+      renderList(); renderZakat();
+      document.getElementById('app-item-count').textContent = T('app_item_count_f')(items.length);
+      resetForm(); switchTab('list');
+      showToast(T('toast_saved'));
+    } else {
+      showToast(currentLang==='ar'?'حدث خطأ، حاول مرة أخرى':'An error occurred, try again');
+    }
+  } else {
+    // زائر — احفظ في localStorage
+    newItem.imageFile = null; // لا نحفظ File object في localStorage
+    items.unshift(newItem);
+    localStorage.setItem('golden_guest_items', JSON.stringify(items));
+    renderList(); renderZakat();
+    document.getElementById('app-item-count').textContent = T('app_item_count_f')(items.length);
+    resetForm(); switchTab('list');
+    showToast(T('toast_saved'));
+    // ذكّر بالتسجيل بعد كل إضافة (مرة واحدة كل 3 قطع)
+    if (items.length % 3 === 0) {
+      setTimeout(()=> showToast(currentLang==='ar'?
+        '💡 سجّل دخولك لحفظ بياناتك بشكل دائم':
+        '💡 Sign in to save your data permanently'), 2500);
+    }
+  }
+
+  btn.textContent = T('btn_save_item');
+  btn.disabled = false;
+}
+
+function resetForm() {
+  ['inp-name','inp-weight','inp-price','inp-date','inp-notes'].forEach(id=>{
+    const el = document.getElementById(id);
+    if (el) el.value='';
+  });
+  document.getElementById('inp-karat').value='21';
+  document.getElementById('inp-type').value='ring';
+  document.getElementById('inp-image').value='';
+  const prev=document.getElementById('img-preview');
+  if(prev) prev.src='';
+  const wrap=document.getElementById('img-preview-wrap');
+  if(wrap) wrap.style.display='none';
+  const ph=document.getElementById('img-placeholder');
+  if(ph) ph.style.display='block';
+  document.getElementById('inp-date').valueAsDate = new Date();
+}
+
+// ══════════════════════════════════════════
+// DETAIL VIEW
+// ══════════════════════════════════════════
+function showDetail(id) {
+  selectedItemId = id;
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+
+  const banner = document.getElementById('detail-icon');
+  if (item.image) {
+    banner.innerHTML=`<img src="${item.image}" style="width:100%;height:100%;object-fit:cover;">`;
+    banner.style.padding='0'; banner.style.fontSize='0';
+  } else {
+    banner.innerHTML = typeIcons[item.type]||'⬡';
+    banner.style.padding=''; banner.style.fontSize='';
+  }
+  document.getElementById('detail-title').textContent = item.name;
+
+  const isAr = currentLang==='ar';
+  const fields=[
+    [T('df_name'),item.name],[T('df_type'),T('type_'+item.type)],
+    [T('df_karat'),item.karat+(isAr?' عيار':' K')],[T('df_weight'),item.weight+(isAr?'جم':'g')],
+    [T('df_price'),item.price?item.price.toLocaleString()+' '+(isAr?'ريال':'SAR'):'—'],
+    [T('df_date'),item.date||'—'],
+  ];
+  if (item.notes) fields.push([T('df_notes'),item.notes]);
+
+  document.getElementById('detail-grid').innerHTML = fields.map(([k,v])=>`
+    <div class="detail-field">
+      <div class="df-label">${k}</div>
+      <div class="df-val">${v}</div>
+    </div>`).join('');
+
+  document.getElementById('detail-current-val').innerHTML = `
+    <div style="background:linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04));border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center;margin-top:4px;">
+      <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">${T('cur_val')}</div>
+      <div style="font-size:1.4rem;font-weight:700;color:var(--gold-light);">${calcCurrentValue(item.weight,item.karat)}</div>
+    </div>`;
+
+  document.getElementById('item-detail').classList.add('show');
+  document.getElementById('tc-list').style.display='none';
+  document.querySelector('.app-tabs').style.display='none';
+}
+
+function closeDetail() {
+  document.getElementById('item-detail').classList.remove('show');
+  document.getElementById('tc-list').style.display='block';
+  document.querySelector('.app-tabs').style.display='flex';
+  selectedItemId=null;
+}
+
+async function deleteItem() {
+  if (!selectedItemId) return;
+  if (currentUser) {
+    const ok = await deleteItemFromSupabase(selectedItemId);
+    if (!ok) { showToast(currentLang==='ar'?'حدث خطأ':'Error'); return; }
+  }
+  items = items.filter(i=>i.id!==selectedItemId);
+  if (!currentUser) localStorage.setItem('golden_guest_items', JSON.stringify(items));
+  renderList(); renderZakat();
+  document.getElementById('app-item-count').textContent=T('app_item_count_f')(items.length);
+  closeDetail();
+  showToast(T('toast_deleted'));
+}
+
+// ══════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t=>{t.classList.remove('active');t.style.display='';});
+  if (tab==='list') {
+    document.getElementById('tab-list').classList.add('active');
+    document.getElementById('tc-list').classList.add('active');
+  } else if (tab==='add') {
+    document.getElementById('tab-add').classList.add('active');
+    document.getElementById('tc-add').classList.add('active');
+  } else if (tab==='zakat') {
+    document.getElementById('tab-zakat').classList.add('active');
+    document.getElementById('tc-zakat').classList.add('active');
+    renderZakat();
+  }
+}
+
+// ══════════════════════════════════════════
+// PDF EXPORT
+// ══════════════════════════════════════════
+async function exportPDF() {
+  if (items.length===0) { showToast(currentLang==='ar'?'لا توجد قطع لتصديرها':'No items to export'); return; }
+  const isAr=currentLang==='ar';
+  const totalVal=items.reduce((s,i)=>s+calcCurrentValueNum(i.weight,i.karat),0);
+  const totalWeight=items.reduce((s,i)=>s+i.weight,0);
+  const dateStr=new Date().toLocaleDateString('ar-SA-u-ca-gregory');
+
+  let rows=items.map((item,idx)=>{
+    const val=calcCurrentValueNum(item.weight,item.karat).toLocaleString('ar-SA',{maximumFractionDigits:0});
+    const imgCell=item.image
+      ?`<img src="${item.image}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">`
+      :`<span style="font-size:1.4rem;">${typeIcons[item.type]||'⬡'}</span>`;
+    return `<tr style="background:${idx%2===0?'#fffdf5':'#fff'}">
+      <td style="padding:10px 12px;text-align:center;">${imgCell}</td>
+      <td style="padding:10px 12px;font-weight:600;">${item.name}</td>
+      <td style="padding:10px 12px;text-align:center;">${T('type_'+item.type)}</td>
+      <td style="padding:10px 12px;text-align:center;">${item.karat}</td>
+      <td style="padding:10px 12px;text-align:center;">${item.weight}${isAr?'جم':'g'}</td>
+      <td style="padding:10px 12px;text-align:center;">${item.price?item.price.toLocaleString()+' '+(isAr?'ريال':'SAR'):'—'}</td>
+      <td style="padding:10px 12px;text-align:center;color:#8B6914;font-weight:700;">${val} ${isAr?'ريال':'SAR'}</td>
+    </tr>`;
+  }).join('');
+
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html dir="${isAr?'rtl':'ltr'}" lang="${isAr?'ar':'en'}">
+<head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+<style>body{font-family:'Tajawal',sans-serif;padding:32px;}h1{color:#8B6914;}
+.header{display:flex;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:2px solid #C9A84C;}
+table{width:100%;border-collapse:collapse;margin-bottom:24px;}
+th{background:linear-gradient(135deg,#8B6914,#C9A84C);color:#fff;padding:12px;font-size:.82rem;}
+td{border-bottom:1px solid #f0e8d0;font-size:.85rem;}
+.summary{background:#fffdf5;border:1px solid #C9A84C;border-radius:8px;padding:20px;display:flex;gap:32px;justify-content:center;}
+.sum-box{text-align:center;}.sum-label{font-size:.75rem;color:#888;margin-bottom:4px;}.sum-val{font-size:1.2rem;font-weight:700;color:#8B6914;}
+@media print{body{padding:16px;}}
+</style></head><body>
+<div class="header">
+  <div><h1>Golden ✦</h1><div style="color:#888;font-size:.9rem;">${isAr?'سجل الذهب الشخصي':'Personal Gold Registry'}</div></div>
+  <div style="text-align:end;"><div style="font-size:.8rem;color:#888;">${isAr?'تاريخ التقرير:':'Report date:'}</div>
+  <div style="font-weight:600;color:#8B6914;">${dateStr}</div>
+  <div style="font-size:.75rem;color:#888;margin-top:4px;">${isAr?'سعر عيار 24:':'24K price:'} ${goldPrice24?goldPrice24.toFixed(1)+' ريال':'—'}</div></div>
+</div>
+<table><thead><tr>
+  <th>${isAr?'صورة':'Photo'}</th><th>${isAr?'الاسم':'Name'}</th><th>${isAr?'النوع':'Type'}</th>
+  <th>${isAr?'العيار':'Karat'}</th><th>${isAr?'الوزن':'Weight'}</th>
+  <th>${isAr?'سعر الشراء':'Purchase'}</th><th>${isAr?'القيمة الحالية':'Current Value'}</th>
+</tr></thead><tbody>${rows}</tbody></table>
+<div class="summary">
+  <div class="sum-box"><div class="sum-label">${isAr?'عدد القطع':'Items'}</div><div class="sum-val">${items.length}</div></div>
+  <div class="sum-box"><div class="sum-label">${isAr?'إجمالي الوزن':'Total Weight'}</div><div class="sum-val">${totalWeight.toFixed(1)}${isAr?'جم':'g'}</div></div>
+  <div class="sum-box"><div class="sum-label">${isAr?'القيمة الإجمالية':'Total Value'}</div><div class="sum-val">${totalVal.toLocaleString('ar-SA',{maximumFractionDigits:0})} ${isAr?'ريال':'SAR'}</div></div>
+</div>
+<div style="margin-top:32px;text-align:center;font-size:.7rem;color:#aaa;">Golden App — ${isAr?'تطبيق تتبع الذهب وحساب الزكاة':'Gold Tracking & Zakat App'}</div>
+</body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(),600);
+}
+
+// ══════════════════════════════════════════
+// ZAKAT CALCULATOR
+// ══════════════════════════════════════════
+function renderZakat() {
+  const container=document.getElementById('zakat-tab-content');
+  if (!container) return;
+  container.innerHTML=buildZakatHTML();
+  setTimeout(()=>{
+    const fill=container.querySelector('.nisaab-fill-live');
+    if (fill) fill.style.width=fill.dataset.pct+'%';
+  },100);
+}
+
+function buildZakatHTML() {
+  const isAr=currentLang==='ar';
+  if (zakatState.step===1) {
+    const hasItems=items.length>0;
+    return `<div style="padding:16px;">
+      <div style="text-align:center;padding:16px 0 20px;">
+        <div style="font-size:1.5rem;margin-bottom:8px;">🕌</div>
+        <div style="font-size:.95rem;font-weight:700;color:var(--gold-light);margin-bottom:4px;">${isAr?'حاسبة زكاة الذهب':'Gold Zakat Calculator'}</div>
+        <div style="font-size:.75rem;color:var(--text-muted);">${isAr?'وفق المعايير الشرعية المعتمدة':'Based on approved Islamic criteria'}</div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:12px;">
+        <div style="font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:12px;">${isAr?'اختر طريقة الإدخال:':'Choose input method:'}</div>
+        ${hasItems?`<button onclick="zakatChooseSource('list')" style="width:100%;background:linear-gradient(135deg,rgba(201,168,76,.15),rgba(201,168,76,.05));border:1px solid rgba(201,168,76,.4);border-radius:6px;padding:14px;text-align:${isAr?'right':'left'};cursor:pointer;margin-bottom:10px;">
+          <div style="font-size:.9rem;font-weight:600;color:var(--gold-light);">✦ ${isAr?'من قائمة ذهبي المسجّل':'From my registered gold list'}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">${items.length} ${isAr?'قطعة':'items'}</div>
+        </button>`:''}
+        <button onclick="zakatChooseSource('manual')" style="width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px;text-align:${isAr?'right':'left'};cursor:pointer;">
+          <div style="font-size:.9rem;font-weight:600;color:var(--text);">+ ${isAr?'إدخال يدوي للأوزان':'Manual weight entry'}</div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:4px;">${isAr?'أدخل الوزن والعيار مباشرة':'Enter weight and karat directly'}</div>
+        </button>
+      </div>
+      <!-- جدول أسعار العيارات -->
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:.72rem;color:var(--gold);letter-spacing:1px;font-weight:600;display:flex;justify-content:space-between;">
+          <span>${isAr?'أسعار الذهب اليوم (ريال/جرام)':'Today’s Gold Prices (SAR/gram)'}</span>
+          <span style="font-size:.65rem;color:var(--text-muted);">● ${isAr?'مباشر':'Live'}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+          ${[18,21,22,24].map(k=>`
+          <div style="padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.04);border-left:1px solid rgba(255,255,255,.04);">
+            <div style="font-size:.7rem;color:var(--text-muted);margin-bottom:3px;">${isAr?'عيار':'Karat'} ${k}</div>
+            <div id="kp-${k}" style="font-size:.95rem;font-weight:700;color:var(--gold-light);">${karatPrice(k).toFixed(1)} ${isAr?'ريال':'SAR'}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+      <div style="background:rgba(201,168,76,.06);border:1px solid var(--border);border-radius:6px;padding:14px;font-size:.75rem;color:var(--text-muted);line-height:1.7;">
+        <div style="color:var(--gold);font-weight:600;margin-bottom:6px;">📋 ${isAr?'المعايير الشرعية:':'Criteria:'}</div>
+        ${isAr?`النصاب: 85 جرام | الزكاة: 2.5% | شرط الحول: عام هجري`:`Nisaab: 85g | Rate: 2.5% | One lunar year`}
+      </div>
+    </div>`;
+  }
+
+  if (zakatState.step===2 && zakatState.source==='list') {
+    return `<div style="padding:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="zakatBack()" style="background:none;border:1px solid var(--border);color:var(--gold-light);padding:6px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.8rem;">← ${isAr?'رجوع':'Back'}</button>
+        <div style="font-size:.85rem;font-weight:600;">${isAr?'اختر القطع للحساب':'Select items'}</div>
+      </div>
+      ${items.map(item=>{
+        const checked=zakatState.includeItems[item.id]!==false;
+        const pureEq=(item.weight*item.karat/24).toFixed(2);
+        return `<div onclick="zakatToggleItem('${item.id}')" style="background:${checked?'linear-gradient(135deg,rgba(201,168,76,.12),rgba(201,168,76,.04))':'var(--surface2)'};border:1px solid ${checked?'rgba(201,168,76,.4)':'var(--border)'};border-radius:6px;padding:12px 14px;margin-bottom:8px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:all .3s;">
+          <div style="width:20px;height:20px;border-radius:4px;border:2px solid ${checked?'var(--gold)':'var(--border)'};background:${checked?'var(--gold)':'transparent'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.7rem;color:var(--black);font-weight:700;">${checked?'✓':''}</div>
+          <div style="flex:1;">
+            <div style="font-size:.85rem;font-weight:600;">${item.name}</div>
+            <div style="font-size:.72rem;color:var(--text-muted);">${isAr?'عيار':'K'} ${item.karat} · ${item.weight}${isAr?'جم':'g'} · ${isAr?'خالص:':'pure:'} ${pureEq}${isAr?'جم':'g'}</div>
+          </div>
+          <div style="font-size:.8rem;color:${checked?'var(--gold-light)':'var(--text-muted)'};">${calcCurrentValue(item.weight,item.karat)}</div>
+        </div>`;
+      }).join('')}
+      <button onclick="zakatCalculate()" style="width:100%;margin-top:8px;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--black);border:none;padding:14px;border-radius:6px;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;">${isAr?'احسب الزكاة ←':'Calculate →'}</button>
+    </div>`;
+  }
+
+  if (zakatState.step===2 && zakatState.source==='manual') {
+    const entries=zakatState.manualEntries;
+    return `<div style="padding:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="zakatBack()" style="background:none;border:1px solid var(--border);color:var(--gold-light);padding:6px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.8rem;">← ${isAr?'رجوع':'Back'}</button>
+        <div style="font-size:.85rem;font-weight:600;">${isAr?'أدخل بيانات ذهبك':'Enter gold details'}</div>
+      </div>
+      ${entries.map((e,i)=>`
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:10px;position:relative;">
+        <div style="font-size:.75rem;color:var(--gold);margin-bottom:10px;">${isAr?'قطعة':'Item'} ${i+1}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">${isAr?'العيار':'Karat'}</div>
+            <select onchange="zakatUpdateEntry(${i},'karat',this.value)" style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:inherit;font-size:.85rem;">
+              ${[18,21,22,24].map(k=>`<option value="${k}" ${e.karat==k?'selected':''}>${k}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <div style="font-size:.72rem;color:var(--text-muted);margin-bottom:4px;">${isAr?'الوزن (جرام)':'Weight (g)'}</div>
+            <input type="number" value="${e.weight||''}" oninput="zakatUpdateEntry(${i},'weight',this.value)" placeholder="0.0" step="0.1" min="0" style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px;font-family:inherit;font-size:.85rem;">
+          </div>
+        </div>
+        ${entries.length>1?`<button onclick="zakatRemoveEntry(${i})" style="position:absolute;top:10px;${isAr?'left':'right'}:10px;background:none;border:none;color:#ff8080;cursor:pointer;font-size:.85rem;">✕</button>`:''}
+      </div>`).join('')}
+      <button onclick="zakatAddEntry()" style="width:100%;background:var(--surface2);border:1px dashed var(--border);color:var(--text-muted);padding:12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.85rem;margin-bottom:12px;">+ ${isAr?'إضافة عيار آخر':'Add another karat'}</button>
+      <button onclick="zakatCalculate()" style="width:100%;background:linear-gradient(135deg,var(--gold-light),var(--gold));color:var(--black);border:none;padding:14px;border-radius:6px;font-family:inherit;font-size:.9rem;font-weight:700;cursor:pointer;">${isAr?'احسب الزكاة ←':'Calculate →'}</button>
+    </div>`;
+  }
+
+  if (zakatState.step===3) {
+    const {totalPure,totalVal,totalZakat,reached,pct,breakdown}=zakatState.result;
+    return `<div style="padding:16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <button onclick="zakatBack()" style="background:none;border:1px solid var(--border);color:var(--gold-light);padding:6px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.8rem;">← ${isAr?'رجوع':'Back'}</button>
+        <div style="font-size:.85rem;font-weight:600;">${isAr?'نتيجة الحساب':'Result'}</div>
+      </div>
+      <div style="background:${reached?'linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08))':'rgba(255,255,255,.03)'};border:1px solid ${reached?'rgba(201,168,76,.5)':'var(--border)'};border-radius:8px;padding:20px;text-align:center;margin-bottom:16px;">
+        <div style="font-size:2rem;margin-bottom:8px;">${reached?'✦':'○'}</div>
+        <div style="font-size:.9rem;font-weight:700;color:${reached?'var(--gold-light)':'var(--text-muted)'};">
+          ${reached?(isAr?'بلغ ذهبك النصاب — الزكاة واجبة':'Nisaab reached — Zakat is due'):(isAr?'لم يبلغ ذهبك النصاب بعد':'Nisaab not yet reached')}
+        </div>
+      </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">
+          <span>${isAr?'نسبة الاكتمال':'Completion'}</span>
+          <span style="color:var(--gold);">${pct.toFixed(0)}%</span>
+        </div>
+        <div style="background:var(--surface);border-radius:4px;height:10px;overflow:hidden;">
+          <div class="nisaab-fill-live" data-pct="${Math.min(pct,100)}" style="height:100%;background:linear-gradient(to right,var(--gold-dark),var(--gold-light));border-radius:4px;width:0%;transition:width 1.2s cubic-bezier(.4,0,.2,1);"></div>
+        </div>
+      </div>
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:12px;">
+        <div style="padding:12px 16px;border-bottom:1px solid var(--border);font-size:.75rem;color:var(--gold);font-weight:600;">${isAr?'تفصيل الحساب':'Breakdown'}</div>
+        ${breakdown.map(b=>`
+        <div style="padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04);">
+          <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:3px;">
+            <span style="color:var(--text-muted);">${b.label}</span>
+            <span style="color:var(--text);font-weight:500;">${b.value}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.75rem;">
+            <span style="color:var(--text-muted);">${isAr?'سعر الجرام اليوم':'Price/gram today'}</span>
+            <span style="color:var(--gold);">${b.karatPrice} ${isAr?'ريال':'SAR'}</span>
+          </div>
+        </div>`).join('')}
+        <div style="display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;">
+          <span style="color:var(--text-muted);">${isAr?'إجمالي مكافئ خالص':'Total pure equiv'}</span>
+          <span style="color:var(--gold-light);font-weight:600;">${totalPure.toFixed(2)} ${isAr?'جم':'g'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.82rem;">
+          <span style="color:var(--text-muted);">${isAr?'القيمة الإجمالية':'Total value'}</span>
+          <span style="color:var(--gold-light);font-weight:600;">${totalVal.toLocaleString('ar-SA',{maximumFractionDigits:0})} ${isAr?'ريال':'SAR'}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:11px 16px;font-size:.82rem;">
+          <span style="color:var(--text-muted);">${isAr?'نسبة الزكاة':'Zakat rate'}</span>
+          <span style="color:var(--text);">2.5%</span>
+        </div>
+      </div>
+      ${reached?`
+      <div style="background:linear-gradient(135deg,rgba(201,168,76,.18),rgba(201,168,76,.06));border:1px solid rgba(201,168,76,.4);border-radius:8px;padding:24px;text-align:center;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,transparent,var(--gold),transparent);"></div>
+        <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:8px;">${isAr?'مقدار الزكاة الواجبة':'Zakat amount due'}</div>
+        <div style="font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:900;color:var(--gold-light);">${totalZakat.toLocaleString('ar-SA',{maximumFractionDigits:0})}</div>
+        <div style="font-size:.85rem;color:var(--gold);margin-top:4px;">${isAr?'ريال سعودي':'Saudi Riyal'}</div>
+      </div>`:`
+      <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center;font-size:.85rem;color:var(--text-muted);">
+        ${isAr?`تحتاج <span style="color:var(--gold-light);font-weight:600;">${(85-totalPure).toFixed(2)} جم</span> إضافية للوصول للنصاب`:`Need <span style="color:var(--gold-light);font-weight:600;">${(85-totalPure).toFixed(2)}g</span> more to reach nisaab`}
+      </div>`}
+      <button onclick="zakatReset()" style="width:100%;margin-top:12px;background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);padding:12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:.85rem;">↺ ${isAr?'حساب جديد':'New calculation'}</button>
+    </div>`;
+  }
+  return '';
+}
+
+function zakatChooseSource(src) {
+  zakatState.source=src; zakatState.step=2;
+  if (src==='list') items.forEach(i=>{ if(zakatState.includeItems[i.id]===undefined) zakatState.includeItems[i.id]=true; });
+  else if (!zakatState.manualEntries.length) zakatState.manualEntries=[{karat:21,weight:''}];
+  renderZakat();
+}
+function zakatBack() { zakatState.step=zakatState.step===3?2:1; renderZakat(); }
+function zakatToggleItem(id) { zakatState.includeItems[id]=!zakatState.includeItems[id]; renderZakat(); }
+function zakatAddEntry() { zakatState.manualEntries.push({karat:21,weight:''}); renderZakat(); }
+function zakatRemoveEntry(i) { zakatState.manualEntries.splice(i,1); renderZakat(); }
+function zakatUpdateEntry(i,field,val) {
+  if(field==='karat') zakatState.manualEntries[i].karat=parseInt(val);
+  else if(field==='weight') zakatState.manualEntries[i].weight=parseFloat(val)||0;
+}
+function zakatCalculate() {
+  const isAr=currentLang==='ar';
+  let entries=[];
+  if (zakatState.source==='list') {
+    entries=items.filter(i=>zakatState.includeItems[i.id]!==false).map(i=>({karat:i.karat,weight:i.weight,value:calcCurrentValueNum(i.weight,i.karat)}));
+  } else {
+    entries=zakatState.manualEntries.filter(e=>e.weight>0).map(e=>({karat:e.karat,weight:e.weight,value:calcCurrentValueNum(e.weight,e.karat)}));
+  }
+  const totalPure=entries.reduce((s,e)=>s+e.weight*(e.karat/24),0);
+  const totalVal=entries.reduce((s,e)=>s+e.value,0);
+  const reached=totalPure>=85;
+  const pct=(totalPure/85)*100;
+  const totalZakat=reached?totalVal*0.025:0;
+  const byKarat={};
+  entries.forEach(e=>{ if(!byKarat[e.karat]) byKarat[e.karat]={weight:0,pure:0,val:0}; byKarat[e.karat].weight+=e.weight; byKarat[e.karat].pure+=e.weight*(e.karat/24); byKarat[e.karat].val+=e.value; });
+  const breakdown=Object.entries(byKarat).map(([k,v])=>({
+    label:`${isAr?'عيار':'Karat'} ${k} — ${v.weight.toFixed(1)}${isAr?'جم':'g'}`,
+    value:`${v.pure.toFixed(2)}${isAr?'جم خالص':'g pure'}`,
+    karatPrice:karatPrice(parseInt(k)).toFixed(1)
+  }));
+  zakatState.result={totalPure,totalVal,totalZakat,reached,pct,breakdown};
+  zakatState.step=3;
+  renderZakat();
+}
+function zakatReset() { zakatState={step:1,includeItems:{},manualEntries:[],source:null}; renderZakat(); }
+
+// ══════════════════════════════════════════
+// WAITLIST
+// ══════════════════════════════════════════
+async function submitWaitlist() {
+  const input = document.getElementById('wl-input');
+  const email = input.value.trim();
+  const btn = document.getElementById('wl-btn');
+  const isAr = currentLang === 'ar';
+
+  if (!email.includes('@') || !email.includes('.')) {
+    showToast(T('toast_email'));
+    return;
+  }
+
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  try {
+    // Save to Supabase waitlist table if available
+    if (window._sb) {
+      await window._sb.from('waitlist').upsert({ email, created_at: new Date().toISOString() });
+    }
+  } catch(e) {
+    // Fallback: save locally
+    const list = JSON.parse(localStorage.getItem('golden_waitlist') || '[]');
+    if (!list.includes(email)) { list.push(email); localStorage.setItem('golden_waitlist', JSON.stringify(list)); }
+  }
+
+  input.value = '';
+  btn.textContent = isAr ? '✓ تم التسجيل' : '✓ Registered';
+  btn.style.background = 'linear-gradient(135deg,#4CAF50,#2e7d32)';
+  showToast(isAr ? 'شكرًا! سنبلغك عند الإطلاق ✦' : 'Thank you! We will notify you at launch ✦');
+
+  setTimeout(() => {
+    btn.textContent = isAr ? 'أبلغني عند الإطلاق' : 'Notify me at launch';
+    btn.style.background = '';
+    btn.disabled = false;
+  }, 4000);
+}
+
+// ══════════════════════════════════════════
+// LANGUAGE
+// ══════════════════════════════════════════
+function toggleLang(e) {
+  e.preventDefault();
+  currentLang = currentLang === 'ar' ? 'en' : 'ar';
+  const isAr = currentLang === 'ar';
+  const html = document.documentElement;
+  html.lang = currentLang;
+  html.dir = isAr ? 'rtl' : 'ltr';
+  document.body.classList.toggle('en', !isAr);
+
+  // زر اللغة
+  document.getElementById('lang-btn').textContent = isAr ? 'English' : 'عربي';
+
+  // Nav links
+  const navProb = document.getElementById('nav-prob');
+  if (navProb) navProb.textContent = isAr ? 'المشكلة' : 'Problem';
+  const navFeat = document.getElementById('nav-feat');
+  if (navFeat) navFeat.textContent = isAr ? 'الميزات' : 'Features';
+  const navWait = document.getElementById('nav-wait');
+  if (navWait) navWait.textContent = isAr ? 'قائمة الانتظار' : 'Waitlist';
+  const navTry = document.getElementById('nav-try');
+  if (navTry) navTry.textContent = isAr ? 'التطبيق' : 'App';
+
+  // App tabs
+  const tabList = document.getElementById('tab-list');
+  if (tabList) tabList.textContent = isAr ? 'قائمتي' : 'My Gold';
+  const tabAdd = document.getElementById('tab-add');
+  if (tabAdd) tabAdd.textContent = isAr ? '+ إضافة' : '+ Add';
+  const tabZakat = document.getElementById('tab-zakat');
+  if (tabZakat) tabZakat.textContent = isAr ? 'الزكاة' : 'Zakat';
+
+  // Gold price bar
+  const priceLabel = document.getElementById('app-price-label');
+  if (priceLabel) priceLabel.textContent = isAr ? 'سعر الجرام عيار 24' : 'Price/gram (24K)';
+  const currLabel = document.getElementById('app-currency-label');
+  if (currLabel) currLabel.textContent = isAr ? 'ريال سعودي' : 'Saudi Riyal';
+
+  // Export button
+  const exportTxt = document.getElementById('export-txt');
+  if (exportTxt) exportTxt.textContent = isAr ? 'تصدير PDF' : 'Export PDF';
+
+  // FAB add button
+  const fabAdd = document.getElementById('fab-add');
+  if (fabAdd) fabAdd.textContent = isAr ? '+ أضف قطعة ذهبية' : '+ Add Gold Item';
+
+  // Add form labels
+  const formLabels = {
+    'fl-name': ['اسم القطعة', 'Item Name'],
+    'fl-type': ['النوع', 'Type'],
+    'fl-karat': ['العيار', 'Karat'],
+    'fl-weight': ['الوزن (جرام)', 'Weight (grams)'],
+    'fl-price': ['سعر الشراء (ريال)', 'Purchase Price (SAR)'],
+    'fl-date': ['تاريخ الشراء', 'Purchase Date'],
+    'fl-notes': ['ملاحظات (اختياري)', 'Notes (optional)'],
+    'fl-image': ['صورة القطعة (اختياري)', 'Item Photo (optional)'],
+    'btn-save-item': ['حفظ القطعة', 'Save Item'],
+    'btn-cancel-item': ['إلغاء', 'Cancel'],
+    'back-txt': ['رجوع', 'Back'],
+    'btn-delete': ['🗑 حذف القطعة', '🗑 Delete Item'],
+    'signout-btn': ['خروج', 'Sign Out'],
+  };
+  Object.entries(formLabels).forEach(([id, [ar, en]]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = isAr ? ar : en;
+  });
+
+  // Select options in add form
+  const typeSelect = document.getElementById('inp-type');
+  if (typeSelect) {
+    const typeMap = {ring:['خاتم','Ring'], necklace:['سلسال','Necklace'], bar:['سبيكة','Bar'], bracelet:['أساور','Bracelet'], other:['أخرى','Other']};
+    Array.from(typeSelect.options).forEach(opt => {
+      if (typeMap[opt.value]) opt.text = isAr ? typeMap[opt.value][0] : typeMap[opt.value][1];
+    });
+  }
+
+  // Input placeholders
+  const inpName = document.getElementById('inp-name');
+  if (inpName) inpName.placeholder = isAr ? 'مثال: خاتم الزفاف' : 'e.g. Wedding Ring';
+  const inpNotes = document.getElementById('inp-notes');
+  if (inpNotes) inpNotes.placeholder = isAr ? 'هدية، مناسبة...' : 'Gift, occasion...';
+
+  // Image upload label
+  const imgPh = document.getElementById('img-placeholder');
+  if (imgPh) imgPh.innerHTML = '<div style="font-size:1.5rem;margin-bottom:4px;">📷</div><div style="font-size:.78rem;color:var(--text-muted);">' + (isAr?'اضغط لرفع صورة':'Click to upload image') + '</div>';
+
+  // Guest banner
+  const bannerTxt = document.getElementById('guest-banner-txt');
+  if (bannerTxt) bannerTxt.textContent = isAr
+    ? 'بياناتك محفوظة مؤقتاً على هذا الجهاز فقط — سجّل دخولك لحفظها بشكل دائم'
+    : 'Data saved temporarily on this device — sign in to save permanently';
+  const loginBtn = document.getElementById('guest-login-btn');
+  if (loginBtn) loginBtn.textContent = isAr ? 'تسجيل الدخول' : 'Sign In';
+
+  // Auth modal
+  const authTab1 = document.getElementById('auth-tab-login');
+  const authTab2 = document.getElementById('auth-tab-signup');
+  if (authTab1) authTab1.textContent = isAr ? 'تسجيل الدخول' : 'Sign In';
+  if (authTab2) authTab2.textContent = isAr ? 'حساب جديد' : 'Sign Up';
+  const authSubtitle = document.getElementById('auth-subtitle');
+  if (authSubtitle) authSubtitle.textContent = isAr ? 'تطبيق الذهب والزكاة' : 'Gold Tracking & Zakat App';
+  const authLblName  = document.getElementById('auth-lbl-name');
+  if (authLblName)  authLblName.textContent  = isAr ? 'الاسم' : 'Name';
+  const authLblEmail = document.getElementById('auth-lbl-email');
+  if (authLblEmail) authLblEmail.textContent = isAr ? 'البريد الإلكتروني' : 'Email Address';
+  const authLblPass  = document.getElementById('auth-lbl-pass');
+  if (authLblPass)  authLblPass.textContent  = isAr ? 'كلمة المرور' : 'Password';
+  const authHint     = document.getElementById('auth-pass-hint');
+  if (authHint)     authHint.textContent     = isAr ? '6 أحرف على الأقل' : 'At least 6 characters';
+  const authSubmit   = document.getElementById('auth-submit-btn');
+  if (authSubmit && authMode === 'login')  authSubmit.textContent = isAr ? 'دخول' : 'Sign In';
+  if (authSubmit && authMode === 'signup') authSubmit.textContent = isAr ? 'إنشاء حساب' : 'Create Account';
+  const authPrivacy = document.getElementById('auth-privacy');
+  if (authPrivacy) authPrivacy.textContent = isAr ? 'بياناتك خاصة ومحمية بالكامل ✦' : 'Your data is private and fully protected ✦';
+
+  // Landing sections titles & labels (basic)
+  const landingMap = {
+    'prob-label': ['المشكلة', 'The Problem'],
+    'feat-label': ['الميزات', 'Features'],
+    'zak-label':  ['الزكاة', 'Zakat'],
+    'how-label':  ['كيف يعمل', 'How It Works'],
+    'wl-label':   ['قريبًا', 'Coming Soon'],
+    'wl-btn':     ['أبلغني عند الإطلاق', 'Notify me at launch'],
+    'wl-note':    ['لن نشارك بياناتك مع أي جهة. ✦', 'We will never share your data. ✦'],
+    'foot1':      ['تطبيق تتبع الذهب وحساب الزكاة', 'Gold Tracking & Zakat App'],
+  };
+  Object.entries(landingMap).forEach(([id,[ar,en]]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = isAr ? ar : en;
+  });
+
+  // Titles with innerHTML (have <span>)
+  const prob_title = document.getElementById('prob-title');
+  if (prob_title) prob_title.innerHTML = isAr ? 'لماذا <span>Golden</span>؟' : 'Why <span>Golden</span>?';
+  const feat_title = document.getElementById('feat-title');
+  if (feat_title) feat_title.innerHTML = isAr ? 'كل ما تحتاجه<br>في <span>مكان واحد</span>' : 'Everything you need<br>in <span>one place</span>';
+  const zak_title = document.getElementById('zak-title');
+  if (zak_title) zak_title.innerHTML = isAr ? 'حساب <span>الزكاة</span> بلحظة' : 'Calculate <span>Zakat</span> instantly';
+  const how_title = document.getElementById('how-title');
+  if (how_title) how_title.innerHTML = isAr ? 'ثلاث خطوات <span>فقط</span>' : 'Three simple <span>steps</span>';
+  const wl_title = document.getElementById('wl-title');
+  if (wl_title) wl_title.innerHTML = isAr ? 'انضم لقائمة<br><span>الانتظار</span>' : 'Join the<br><span>Waitlist</span>';
+  const wl_input = document.getElementById('wl-input');
+  if (wl_input) wl_input.placeholder = isAr ? 'بريدك الإلكتروني' : 'Your email address';
+  const foot2 = document.getElementById('foot2');
+  if (foot2) foot2.textContent = isAr ? '© 2025 Golden. جميع الحقوق محفوظة.' : '© 2025 Golden. All rights reserved.';
+
+  // ── قسم المشكلة ──
+  const probMap = {
+    'prob-label': ['المشكلة', 'The Problem'],
+    'prob-sub':   ['كثير منا يملك ذهبًا لكن لا يعرف تفاصيله الحقيقية عند الحاجة',
+                   'Many of us own gold but do not know its details when needed.'],
+    'pb1':  ['نسيان الوزن والعيار مع مرور الوقت', 'Forgetting weight and karat over time'],
+    'pb1s': ['تفاصيل مهمة تُنسى بعد سنوات من الشراء', 'Key details are forgotten years after purchase.'],
+    'pb2':  ['ضياع فاتورة الشراء', 'Losing the purchase invoice'],
+    'pb2s': ['لا دليل على سعر الشراء الأصلي عند البيع', 'No proof of original price when selling.'],
+    'pb3':  ['تخزين المعلومات بشكل عشوائي', 'Storing information in random notes'],
+    'pb3s': ['ملاحظات متفرقة لا يمكن الوثوق بها', 'Scattered notes that cannot be trusted.'],
+    'pb4':  ['صعوبة معرفة القيمة الحقيقية', 'Difficulty knowing the real value'],
+    'pb4s': ['لا تعرف كم يساوي ذهبك بالسعر الحالي', 'You do not know what your gold is worth today.'],
+    'pb5':  ['هل بلغ النصاب الشرعي؟', 'Has the zakat nisaab been reached?'],
+    'pb5s': ['عدم وضوح ما إذا وجبت الزكاة أم لا', 'Unclear whether zakat is obligatory or not.'],
+    'pb6':  ['كم مقدار الزكاة الواجبة؟', 'How much zakat must be paid?'],
+    'pb6s': ['حساب يدوي معقد وعرضة للخطأ', 'Manual calculation is complex and error-prone.'],
+  };
+  Object.entries(probMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+
+  // ── قسم الميزات ──
+  const featMap = {
+    'feat-label': ['الميزات', 'Features'],
+    'f1':  ['تسجيل كامل لكل قطعة', 'Complete record for each item'],
+    'f1s': ['اسم القطعة، النوع، العيار، الوزن، سعر الشراء، التاريخ، والصورة',
+            'Name, type, karat, weight, purchase price, date, and photo.'],
+    'f2':  ['القيمة الحالية تلقائيًا', 'Automatic current value'],
+    'f2s': ['احسب قيمة ذهبك الآن استنادًا لسعر الذهب الحالي',
+            `Calculate your gold's value now based on the live market price.`],
+    'f3':  ['حساب الزكاة بدقة', 'Precise zakat calculation'],
+    'f3s': ['مقارنة بالنصاب (85 جرام عيار 24) وحساب 2.5% تلقائيًا',
+            'Compared to nisaab (85g of 24K) and calculates 2.5% automatically.'],
+    'f4':  ['خصوصية تامة — بدون إنترنت', 'Full privacy — works offline'],
+    'f4s': ['بياناتك تُحفظ على جهازك فقط، لا سحابة ولا مشاركة',
+            'Your data is stored on your device only — no cloud, no sharing.'],
+    'f5':  ['عربي وإنجليزي', 'Arabic & English'],
+    'f5s': ['واجهة كاملة بكلتا اللغتين مع دعم RTL', 'Full bilingual interface with RTL support.'],
+  };
+  Object.entries(featMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+  if(feat_title) feat_title.innerHTML=isAr?'كل ما تحتاجه<br>في <span>مكان واحد</span>'
+                                          :'Everything you need<br>in <span>one place</span>';
+
+  // ── قسم الزكاة ──
+  const zakMap = {
+    'zak-label': ['الزكاة', 'Zakat'],
+    'zak-sub':   ['النصاب الشرعي للذهب 85 جرامًا من عيار 24. إذا بلغ ذهبك هذا الحد ومرت عليه سنة كاملة، تجب فيه الزكاة بنسبة 2.5%',
+                  'The gold nisaab is 85 grams of 24K gold. If your gold reaches this amount and a full lunar year has passed, zakat at 2.5% is due.'],
+    'zl1': ['إجمالي وزن الذهب', 'Total gold weight'],
+    'zl2': ['النصاب الشرعي', 'Nisaab threshold'],
+    'zl3': ['نسبة الاكتمال', 'Completion ratio'],
+    'zl4': ['القيمة الإجمالية التقريبية', 'Approximate total value'],
+    'zl5': ['نسبة الزكاة', 'Zakat rate'],
+  };
+  Object.entries(zakMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+  if(zak_title) zak_title.innerHTML=isAr?'حساب <span>الزكاة</span> بلحظة'
+                                        :'Calculate <span>Zakat</span> instantly';
+
+  // ── قسم كيف يعمل ──
+  const howMap = {
+    'how-label': ['كيف يعمل', 'How It Works'],
+    's1':  ['أضف ذهبك', 'Add Your Gold'],
+    's1d': ['سجّل كل قطعة بتفاصيلها الكاملة من الاسم والعيار والوزن والسعر',
+            'Record each item with its full details: name, karat, weight, and price.'],
+    's2':  ['تابع القيمة', 'Track Its Value'],
+    's2d': ['اعرف قيمة ذهبك الحالية تلقائيًا بناءً على سعر السوق',
+            'Know your gold current value automatically based on the live market price.'],
+    's3':  ['احسب الزكاة', 'Calculate Zakat'],
+    's3d': ['اعرف على الفور هل وجبت الزكاة وكم مقدارها بالضبط',
+            'Instantly know whether zakat is due and exactly how much.'],
+  };
+  Object.entries(howMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+  if(how_title) how_title.innerHTML=isAr?'ثلاث خطوات <span>فقط</span>'
+                                        :'Three <span>Simple</span> Steps';
+
+  // ── موكاب الهاتف (قسم الميزات) ──
+  const phoneMap = {
+    'ph-items':      ['4 قطع',           '4 items'],
+    'ph-price-label':['سعر الجرام (24)', 'Price/gram (24K)'],
+    'ph-currency':   ['ريال سعودي',      'Saudi Riyal'],
+    'pi1n': ['خاتم الزفاف',  'Wedding Ring'],
+    'pi1d': ['عيار 21 · 8.5 جرام', '21K · 8.5g'],
+    'pi2n': ['سلسال ذهبي',   'Gold Necklace'],
+    'pi2d': ['عيار 18 · 12 جرام',  '18K · 12g'],
+    'pi3n': ['سبيكة صغيرة',  'Gold Bar'],
+    'pi3d': ['عيار 24 · 31.1 جرام','24K · 31.1g'],
+  };
+  Object.entries(phoneMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+
+  // ── قسم الزكاة الثابت (landing) ──
+  const zakStaticMap = {
+    'zl-total-weight': ['51.6 جرام', '51.6g'],
+    'zl-nisaab-val':   ['85 جرام (عيار 24)', '85g (24K)'],
+    'zl-pct':          ['61% من النصاب', '61% of nisaab'],
+    'zl1': ['إجمالي وزن الذهب', 'Total gold weight'],
+    'zl2': ['النصاب الشرعي',    'Nisaab threshold'],
+    'zl3': ['نسبة الاكتمال',    'Completion ratio'],
+    'zl4': ['القيمة الإجمالية التقريبية', 'Approximate total value'],
+    'zl5': ['نسبة الزكاة',      'Zakat rate'],
+  };
+  Object.entries(zakStaticMap).forEach(([id,[ar,en]])=>{ const el=document.getElementById(id); if(el) el.textContent=isAr?ar:en; });
+
+  // ── تحديث القيم الديناميكية بالوحدة الصحيحة ──
+  // zl4v (القيمة) تتحدث عبر updatePriceDisplay — لا تحتاج ترجمة يدوية
+
+  // ── قسم الانتظار ──
+  if(wl_title) wl_title.innerHTML=isAr?'انضم لقائمة<br><span>الانتظار</span>'
+                                      :'Join the<br><span>Waitlist</span>';
+  const wlSub = document.getElementById('wl-sub');
+  if(wlSub) wlSub.textContent = isAr
+    ? 'نُطلق التطبيق قريبًا على iOS و Android. سجّل بريدك لتكون من أوائل المستخدمين'
+    : `We're launching soon on iOS & Android. Sign up to be among the first users.`;
+
+  renderList();
+  renderZakat();
+  updatePriceDisplay();
+}
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function showToast(msg) {
+  const toast=document.getElementById('toast');
+  toast.textContent=msg; toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),3000);
+}
+
+// ══════════════════════════════════════════
+// SCROLL REVEAL & MISC
+// ══════════════════════════════════════════
+function initScrollReveal() {
+  const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');}),{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+}
+function animateNisaabDemo() {
+  setTimeout(()=>{ const el=document.getElementById('nisaab-fill-demo'); if(el) el.style.width='61%'; },500);
+}
+</script>
+</body>
+</html>
