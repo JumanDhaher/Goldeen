@@ -7,19 +7,39 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Tajawal:wght@300;400;500;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── Dark Mode (default) ── */
 :root {
   --gold: #C9A84C;
   --gold-light: #E8C97A;
   --gold-pale: #F5E6B8;
-  --gold-dark: #8B6914;
+  --gold-dark: #A07820;
   --black: #0A0A0A;
   --surface: #111108;
-  --surface2: #1A190F;
-  --surface3: #232210;
-  --text: #F0E8D0;
-  --text-muted: #8A7F5E;
-  --border: rgba(201,168,76,0.2);
+  --surface2: #1C1B10;
+  --surface3: #252414;
+  --text: #F5EDD8;
+  --text-muted: #A89870;
+  --border: rgba(201,168,76,0.25);
   --radius: 4px;
+  --mode-icon: '🌙';
+  --card-shadow: 0 4px 24px rgba(0,0,0,.4);
+}
+
+/* ── Light Mode ── */
+:root.light {
+  --gold: #A0720A;
+  --gold-light: #8B6200;
+  --gold-pale: #5C4000;
+  --gold-dark: #3D2A00;
+  --black: #FAF7F0;
+  --surface: #FFFFFF;
+  --surface2: #FBF6E9;
+  --surface3: #F5EDD5;
+  --text: #1A1500;
+  --text-muted: #6B5C30;
+  --border: rgba(160,114,10,0.2);
+  --mode-icon: '☀️';
+  --card-shadow: 0 4px 24px rgba(0,0,0,.08);
 }
 
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -31,11 +51,36 @@ body {
   background: var(--black);
   color: var(--text);
   overflow-x: hidden;
+  transition: background .35s, color .35s;
 }
 
 body.en { direction: ltr; font-family: 'DM Sans', sans-serif; }
 
-/* ─── NOISE OVERLAY ─── */
+/* ── Light mode overrides ── */
+:root.light body { background: var(--black); color: var(--text); }
+:root.light .app-container { border-color: rgba(160,114,10,0.3); }
+:root.light .app-header { background: var(--surface2); border-bottom: 1px solid var(--border); }
+:root.light .tab { color: var(--text-muted); }
+:root.light .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+:root.light .gold-item-card { background: var(--surface2); border-color: var(--border); }
+:root.light .gold-item-card:hover { background: var(--surface3); }
+:root.light .form-input, :root.light .form-select { background: #fff; border-color: var(--border); color: var(--text); }
+:root.light .section-label { color: var(--gold); }
+:root.light .feature-num { color: var(--gold-dark); opacity: .8; }
+:root.light .feature-content h3 { color: var(--text); }
+:root.light .feature-content p { color: var(--text-muted); }
+:root.light .zakat-calc { background: var(--surface2); }
+:root.light .step p { color: var(--text-muted); }
+:root.light footer { background: var(--surface2); }
+:root.light .waitlist-input { background: #fff; color: var(--text); }
+:root.light .gold-price-bar { background: rgba(160,114,10,.08); }
+:root.light .gp-label, :root.light .gp-sub { color: var(--text-muted); }
+:root.light .gp-value { color: var(--gold); }
+:root.light .empty-state { color: var(--text-muted); }
+:root.light .add-btn-fab { background: linear-gradient(135deg,#C9A84C,#A07820); color: #fff; }
+:root.light #guest-banner { background: rgba(160,114,10,.08); border-color: rgba(160,114,10,.2); }
+
+/* ─── NOISE OVERLAY (dark only) ─── */
 body::before {
   content:'';
   position:fixed;
@@ -44,7 +89,9 @@ body::before {
   pointer-events:none;
   z-index:1000;
   opacity:.5;
+  transition: opacity .3s;
 }
+:root.light body::before { opacity: 0; }
 
 /* ─── NAV ─── */
 nav {
@@ -53,6 +100,7 @@ nav {
   display: flex; align-items:center; justify-content:space-between;
   padding: 20px 48px;
   background: linear-gradient(to bottom, rgba(10,10,10,0.98), transparent);
+  transition: background .3s;
   backdrop-filter: blur(8px);
 }
 
@@ -64,6 +112,15 @@ nav {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: 2px;
+}
+:root.light nav {
+  background: rgba(250,247,240,0.97) !important;
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+:root.light .nav-logo {
+  background: linear-gradient(135deg, #8B6200, #A0720A, #5C4000);
+  -webkit-background-clip: text;
 }
 
 .nav-links { display:flex; gap:8px; align-items:center; }
@@ -242,10 +299,11 @@ section {
   font-weight: 700;
   line-height: 1.1;
   margin-bottom: 20px;
-  color: #F5E6B8;
+  color: var(--text);
 }
-
-.section-title span { color: var(--gold-light); }
+:root.light .section-title { color: #1A1500; }
+.section-title span { color: var(--gold); }
+:root.light .section-title span { color: var(--gold); }
 
 /* ─── PROBLEM ─── */
 #problem { text-align: center; }
@@ -472,7 +530,7 @@ section {
 
 .step-num {
   width: 64px; height: 64px;
-  border: 1px solid var(--border);
+  border: 2px solid var(--gold);
   border-radius: 50%;
   display: flex; align-items:center; justify-content:center;
   margin: 0 auto 24px;
@@ -484,6 +542,7 @@ section {
   position: relative;
   z-index:1;
 }
+:root.light .step-num { background: var(--surface2); }
 
 .step h3 { font-size: 1rem; font-weight: 600; margin-bottom: 12px; }
 .step p { font-size: .85rem; color: var(--text-muted); line-height: 1.7; }
@@ -940,6 +999,7 @@ footer p { font-size: .8rem; color: var(--text-muted); margin-bottom: 8px; }
     <a href="#features" id="nav-feat">الميزات</a>
     <a href="#waitlist" id="nav-wait">قائمة الانتظار</a>
     <a href="#" class="lang-btn" onclick="toggleLang(event)" id="lang-btn">English</a>
+    <button onclick="toggleTheme()" id="theme-btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:all .3s;flex-shrink:0;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'">🌙</button>
     <a href="#app" class="btn-app" id="nav-try">جرّب الآن</a>
   </div>
 </nav>
@@ -1244,8 +1304,8 @@ footer p { font-size: .8rem; color: var(--text-muted); margin-bottom: 8px; }
         <div class="feature-item reveal">
           <div class="feature-num">04</div>
           <div class="feature-content">
-            <h3 id="f4">خصوصية تامة — بدون إنترنت</h3>
-            <p id="f4s">بياناتك تُحفظ على جهازك فقط، لا سحابة ولا مشاركة</p>
+            <h3 id="f4">خصوصية تامة لبياناتك</h3>
+            <p id="f4s">بياناتك مشفّرة ومحفوظة بشكل آمن، لا تُشارك مع أي جهة</p>
           </div>
         </div>
         <div class="feature-item reveal">
@@ -1500,6 +1560,7 @@ async function initApp() {
     }
   });
 
+  loadTheme();
   fetchGoldPrice();
   setInterval(fetchGoldPrice, 60000);
   initScrollReveal();
@@ -2337,6 +2398,37 @@ async function submitWaitlist() {
 // ══════════════════════════════════════════
 // LANGUAGE
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════
+let isDark = true;
+
+function toggleTheme() {
+  isDark = !isDark;
+  const root = document.documentElement;
+  const btn  = document.getElementById('theme-btn');
+
+  if (isDark) {
+    root.classList.remove('light');
+    if (btn) btn.textContent = '🌙';
+    localStorage.setItem('golden_theme', 'dark');
+  } else {
+    root.classList.add('light');
+    if (btn) btn.textContent = '☀️';
+    localStorage.setItem('golden_theme', 'light');
+  }
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('golden_theme');
+  if (saved === 'light') {
+    isDark = false;
+    document.documentElement.classList.add('light');
+    const btn = document.getElementById('theme-btn');
+    if (btn) btn.textContent = '☀️';
+  }
+}
+
 function toggleLang(e) {
   e.preventDefault();
   currentLang = currentLang === 'ar' ? 'en' : 'ar';
@@ -2514,9 +2606,9 @@ function toggleLang(e) {
     'f3':  ['حساب الزكاة بدقة', 'Precise zakat calculation'],
     'f3s': ['مقارنة بالنصاب (85 جرام عيار 24) وحساب 2.5% تلقائيًا',
             'Compared to nisaab (85g of 24K) and calculates 2.5% automatically.'],
-    'f4':  ['خصوصية تامة — بدون إنترنت', 'Full privacy — works offline'],
-    'f4s': ['بياناتك تُحفظ على جهازك فقط، لا سحابة ولا مشاركة',
-            'Your data is stored on your device only — no cloud, no sharing.'],
+    'f4':  ['خصوصية تامة لبياناتك', 'Your data stays private and secure'],
+    'f4s': ['بياناتك مشفّرة ومحفوظة بشكل آمن، لا تُشارك مع أي جهة',
+            'Your data is encrypted and stored securely — never shared with anyone.'],
     'f5':  ['عربي وإنجليزي', 'Arabic & English'],
     'f5s': ['واجهة كاملة بكلتا اللغتين مع دعم RTL', 'Full bilingual interface with RTL support.'],
   };
